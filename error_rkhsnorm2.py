@@ -22,13 +22,13 @@ beta = 1.1
 gamma =  1.01
 
 delta = 0.0009   #time-loc
-eta = .1     #freq-loc
+eta = .03     #freq-loc
 
 if gamma <=1 or beta<=1:
     raise ValueError("gamma and beta must be > 1")
 
 
-inputs = 'time-loc'  # 'time-loc' or 'freq-loc'
+inputs = 'freq-loc'  # 'time-loc' or 'freq-loc'
 lam_val = 1e-4, '1e-4'
 
 if inputs == 'freq-loc':
@@ -164,8 +164,8 @@ for n in range(1,N+1):
     error_logstd[n-1] = np.std(np.log(error_of_exper))
 
 
-np.save('learnconv-results/New_rkhs_errormean_'+str(inputs)+'_eta='+str(eta)+'lam='+str(lam_val[1])+'timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampmean)
-np.save('learnconv-results/New_rkhs_errorstd_'+str(inputs)+'_eta='+str(eta)+'lam='+str(lam_val[1])+'timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampstd)
+# np.save('learnconv-results/New_rkhs_errormean_'+str(inputs)+'_eta='+str(eta)+'lam='+str(lam_val[1])+'timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampmean)
+# np.save('learnconv-results/New_rkhs_errorstd_'+str(inputs)+'_eta='+str(eta)+'lam='+str(lam_val[1])+'timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampstd)
 #np.save('learnconv-results/rkhs_errorlogmean_'+str(inputs)+'_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_logmean)
 #np.save('learnconv-results/rkhs_errorlogstd_+'str(inputs)+'_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_logstd)
 
