@@ -4,10 +4,10 @@ def fourier_coeff(f_eval,  T):
     return np.fft.fft(f_eval, axis=0) * T / len(f_eval)
 
 N = 9   # number of input functions n= 1, 2, ..., N
-num_exp = 10 #number of times for each N (for avergaing error)
+num_exp = 9 #number of times for each N (for avergaing error)
 
 
-d = 2**13 # grid points
+d = 2**10 # grid points
 
 t_left = -.5
 t_right = .5
@@ -17,12 +17,26 @@ T = t_right - t_left
 t = np.linspace(t_left,t_right,d)
 noise = .02
 
+#general parameters (for both time-loc or freq-loc)
 beta = 1.1 
 gamma =  1.01
-if gamma <=1:
-    raise ValueError("gamma must be > 1")
-eta = .25
-alpha_sup = (2*beta -1 - gamma) / 2*(gamma + eta)
+
+
+delta = 0.076   #time-loc
+eta = .002    #freq-loc
+
+if gamma <=1 or beta<=1:
+    raise ValueError("gamma and beta must be > 1")
+
+
+inputs = 'freq-loc'  # 'time-loc' or 'freq-loc'
+
+if inputs == 'freq-loc':
+    alpha_sup = (2*beta -1 - gamma) / 2*(gamma + eta)
+
+if inputs == 'time-loc':
+    alpha_sup = (2*beta -1 - gamma) / 2*gamma
+
 print("alpha_sup" , alpha_sup)
 alpha = .9 * alpha_sup
 
@@ -44,8 +58,6 @@ true_w = sin_polin(t,beta,sum_until)
 ##fourier coefficients of w_true
 true_w_coeff = fourier_coeff(true_w, T)  # normalized by the number of grid points
 
-#for time-loc inputs
-delta = 0.076
 
 #for freq-loc inputs
 L_max = sum_until
@@ -106,17 +118,17 @@ for n in range(1,N+1):
     for j in range(0,num_exp):
     
 
-        #Localized in frequency
-        #random vector for frequencies
-        # L = power_law_samples(n, L_max, eta)
+        if inputs == 'freq-loc':
+            #random vector for frequencies
+            L = power_law_samples(n, L_max, eta)
 
-        # X =  np.array([ np.cos(l*t*2*np.pi) + 1j*np.sin(l*t*2*np.pi)  for l in L]).T
+            X =  np.array([ np.cos(l*t*2*np.pi) + 1j*np.sin(l*t*2*np.pi)  for l in L]).T
 
         
-         #Localized in time
-        R = np.random.normal(0,.25,n)
+        if inputs == 'time-loc':
+            R = np.random.normal(0,.25,n)
 
-        X = np.array([np.where(((t-l) <= 2*delta) & ((t-l)>=0), 1, 0) for l in R]).T / (2*delta)
+            X = np.array([np.where(((t-l) <= 2*delta) & ((t-l)>=0), 1, 0) for l in R]).T / (2*delta)
    
         # fourier coefficients of X, Y and true sol  
         X_fourier =  fourier_coeff(X,T)                                   
@@ -151,8 +163,8 @@ for n in range(1,N+1):
     error_logstd[n-1] = np.std(np.log(error_of_exper))
 
 
-np.save('results/rkhs_errormean_timeloc_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampmean)
-np.save('results/rkhs_errorstd_timeloc_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampstd)
-np.save('results/rkhs_errorlogmean_timeloc_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_logmean)
-np.save('results/rkhs_errorlogstd_timeloc_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_logstd)
+# np.save('results/rkhs_errormean_timeloc_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampmean)
+# np.save('results/rkhs_errorstd_timeloc_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampstd)
+# np.save('results/rkhs_errorlogmean_timeloc_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_logmean)
+# np.save('results/rkhs_errorlogstd_timeloc_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_logstd)
 
