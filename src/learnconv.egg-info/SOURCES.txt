@@ -1,0 +1,7 @@
+README.md
+setup.py
+src/learnconv.egg-info/PKG-INFO
+src/learnconv.egg-info/SOURCES.txt
+src/learnconv.egg-info/dependency_links.txt
+src/learnconv.egg-info/requires.txt
+src/learnconv.egg-info/top_level.txt

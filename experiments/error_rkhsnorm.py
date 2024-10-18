@@ -164,8 +164,8 @@ for n in range(1,N+1):
     error_logstd[n-1] = np.std(np.log(error_of_exper))
 
 
-np.save('learnconv-results/New_rkhs_errormean_'+str(inputs)+'_eta='+str(eta)+'lam='+str(lam_val[1])+'timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampmean)
-np.save('learnconv-results/New_rkhs_errorstd_'+str(inputs)+'_eta='+str(eta)+'lam='+str(lam_val[1])+'timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampstd)
+# np.save('learnconv-results/New_rkhs_errormean_'+str(inputs)+'_eta='+str(eta)+'lam='+str(lam_val[1])+'timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampmean)
+# np.save('learnconv-results/New_rkhs_errorstd_'+str(inputs)+'_eta='+str(eta)+'lam='+str(lam_val[1])+'timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_sampstd)
 #np.save('learnconv-results/rkhs_errorlogmean_'+str(inputs)+'_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_logmean)
 #np.save('learnconv-results/rkhs_errorlogstd_+'str(inputs)+'_eta='+str(eta)+'lam=1e-4timesfac_delta='+str(delta)+'sum_until='+str(sum_until)+'_beta='+str(beta)+'_gamma='+str(gamma)+'_N='+str(N)+'_d='+str(d)+'tleft='+str(t_left)+'_noise='+str(noise)+'_num_exp='+str(num_exp)+'_alpha='+str(alpha), error_logstd)
 
