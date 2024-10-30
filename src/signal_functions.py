@@ -113,3 +113,27 @@ def truncated_fourier_series(input_points, decay_rate, num_terms):
     negative_terms = (sum(np.exp(1j * 2 * k * np.pi * input_points) / (k ** decay_rate)) for k in range(-num_terms, 0))
     
     return positive_terms + negative_terms
+
+
+def piecewise_linear_signal(input_points, period):
+    """
+    Generates a periodic, piecewise linear signal with a specified period.
+
+    Parameters:
+    ----------
+    input_points : numpy.ndarray or float
+        The input values (can be a single float or a NumPy array) where the signal is evaluated.
+    period : float, optional
+        The period of the piecewise linear signal. 
+    Returns:
+    -------
+    numpy.ndarray or float
+        The generated piecewise linear signal at the specified input points.
+    """
+    # Normalize input points by the period to create periodic behavior
+    normalized_points = input_points / period
+
+    # Generate the piecewise linear signal using modulo operation
+    linear_signal = 2 * (normalized_points - np.floor(0.5 + normalized_points))
+    
+    return linear_signal

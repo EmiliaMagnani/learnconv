@@ -1,6 +1,6 @@
 import numpy as np
 
-def compute_fourier_coeff(signal_values, time_span):
+def compute_fourier_coeff(signal_values,time_span):
     """
     Computes the Fourier coefficients of a given signal.
 

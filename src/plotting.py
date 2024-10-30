@@ -68,47 +68,39 @@ def plot_error_with_std(num_samples, error_sampmean, error_sampstd):
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_true_vs_approximation(time_array, target_f_coeff, time_grid_points, target):
+def plot_true_vs_approximation(time_array, target, prediction):
     """
-    Plots the true solution against the approximation.
+    Plots the true solution and the approximation.
 
     Parameters:
     ----------
     time_array : numpy.ndarray
-        Array of time points where the solution is evaluated.
-    target_f_coeff : numpy.ndarray
-        Fourier coefficients of the true solution.
-    time_grid_points : int
-        Number of grid points (resolution).
+        Array of time points.
+    prediction : numpy.ndarray
+        Approximation of the true solution.
     target : numpy.ndarray
-        True solution values (for comparison).
-    red : tuple or np.ndarray
-        Color for the true solution plot.
-    dark : tuple or np.ndarray
-        Color for the approximation plot.
+        True solution.
     
     Returns:
     -------
     None
     """
-    # Compute the approximation using the inverse FFT
-    w = np.fft.ifft(time_grid_points * target_f_coeff)
     
-    with plt.style.context(bundles.aistats2023()):
-        # Create the plot
-        fig, ax = plt.subplots(1,)
-        
-        # Plot true solution
-        ax.plot(time_array, target, label='True solution', color=red)
-        
-        # Plot approximation
-        ax.plot(time_array, w, label='Approximation', color=dark)
-        
-        # Add a legend
-        ax.legend()
-        
-        # Show the plot
-        plt.show()
+    
+    # Create the plot
+    fig, ax = plt.subplots(1,)
+    
+    # Plot true solution
+    ax.plot(time_array, target, label='True solution', color=red)
+    
+    # Plot approximation
+    ax.plot(time_array, prediction, label='Approximation', color=dark)
+    
+    # Add a legend
+    ax.legend()
+    
+    # Show the plot
+    plt.show()
 
 
 
