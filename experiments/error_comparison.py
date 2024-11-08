@@ -87,12 +87,12 @@ error_squared_sampmean_time_loc, error_squared_sampstd_time_loc, error_logmean_t
 )
 
 
-np.save('error_squared_sampmean_freq_loc.npy', error_squared_sampmean_freq_loc)
-np.save('error_squared_sampstd_freq_loc.npy', error_squared_sampstd_freq_loc)
-np.save('error_logmean_freq_loc.npy', error_logmean_freq_loc)
-np.save('error_logstd_freq_loc.npy', error_logstd_freq_loc)
+np.save('learnconv_results/error_squared_sampmean_freq_loc.npy', error_squared_sampmean_freq_loc)
+np.save('learnconv_results/error_squared_sampstd_freq_loc.npy', error_squared_sampstd_freq_loc)
+np.save('learnconv_results/error_logmean_freq_loc.npy', error_logmean_freq_loc)
+np.save('learnconv_results/error_logstd_freq_loc.npy', error_logstd_freq_loc)
 
-np.save('error_squared_sampmean_time_loc.npy', error_squared_sampmean_time_loc)
-np.save('error_squared_sampstd_time_loc.npy', error_squared_sampstd_time_loc)
-np.save('error_logmean_time_loc.npy', error_logmean_time_loc)
-np.save('error_logstd_time_loc.npy', error_logstd_time_loc)
+np.save('learnconv_results/error_squared_sampmean_time_loc.npy', error_squared_sampmean_time_loc)
+np.save('learnconv_results/error_squared_sampstd_time_loc.npy', error_squared_sampstd_time_loc)
+np.save('learnconv_results/error_logmean_time_loc.npy', error_logmean_time_loc)
+np.save('learnconv_results/error_logstd_time_loc.npy', error_logstd_time_loc)
