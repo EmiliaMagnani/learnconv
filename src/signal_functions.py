@@ -60,7 +60,7 @@ def generate_time_localized_samples(n_samples, time_array, delta):
     numpy.ndarray
         Time-localized sample matrix.
     """
-    random_times = np.random.normal(0, 0.25, n_samples)
+    random_times = np.random.normal(0.5, 0.16, n_samples)
     X = np.array([np.where(((time_array - t) <= 2 * delta) & ((time_array - t) >= 0), 1, 0) 
                   for t in random_times]).T / (2 * delta)
     return X

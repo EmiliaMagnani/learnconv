@@ -18,8 +18,8 @@ t = np.linspace(t_left,t_right,d)
 noise = .02
 
 #general parameters (for both time-loc or freq-loc)
-beta = 1.1 
-gamma =  1.01
+beta = 1.1  #for the true function
+gamma =  1.01 #for the kernel
 
 delta = 0.0009   #time-loc
 eta = .03     #freq-loc
