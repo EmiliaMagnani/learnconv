@@ -7,7 +7,7 @@ from inference_utils import  run_inference_error_frequency_localized, run_infere
 
 
 #number of experiments
-num_experiments = 10
+num_experiments = 9
 
 #CHOOSE number of input functions
 num_samples = 1000
@@ -51,7 +51,7 @@ alpha_freq_loc = 1/3
 b_freq_loc = 3
 
 #compute error for freq-loc input signals
-error_squared_sampmean_freq_loc, error_squared_sampstd_freq_loc, error_logmean_freq_loc, error_logstd_freq_loc = run_inference_error_frequency_localized(
+error_squared_sampmean_freq_loc, error_squared_sampstd_freq_loc, error_squared_logmean_freq_loc, error_squared_logstd_freq_loc = run_inference_error_frequency_localized(
     num_samples=num_samples,
     num_experiments= num_experiments,
     time_array=time_array,
@@ -72,7 +72,7 @@ alpha_time_loc = .5
 b_time_loc = 2
 
 #compute error for time-loc input signals
-error_squared_sampmean_time_loc, error_squared_sampstd_time_loc, error_logmean_time_loc, error_logstd_time_loc = run_inference_error_time_localized(
+error_squared_sampmean_time_loc, error_squared_sampstd_time_loc, error_squared_logmean_time_loc, error_squared_logstd_time_loc = run_inference_error_time_localized(
     num_samples=num_samples,
     num_experiments= num_experiments,
     time_array=time_array,

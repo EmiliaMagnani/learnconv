@@ -147,7 +147,7 @@ def run_inference_frequency_localized(num_samples, time_array, time_span, kernel
     return fft_pred_fourier_coeff, prediction_time_domain
 
 
-def run_inference_error_time_localized(num_samples, num_experiments, time_array, time_span, kernel_coeff, target_fourier_coeff, noise, alpha, series_truncation, loc_parameter):
+def run_inference_error_time_localized(num_samples, num_experiments, time_array, time_span, kernel_coeff, target_fourier_coeff, noise, alpha, b, series_truncation, loc_parameter):
     """
     Runs the inference and error computation for time-localized signals.
 
