@@ -8,6 +8,6 @@ This repository contains the numerical simulations accompanying our paper, which
 - **`src/`**: Contains the main code for setting up and running the simulations.
 - **`data/`**: Contains any data generated or used in the simulations.
 - **`notebooks/`**: Jupyter notebooks to reproduce and visualize the results of the simulations.
-- **experiment.py**: The main scripts to run the simulations.
+- **experiments/**: The main scripts to run the simulations.
 - **`results/`**: Outputs from the simulations, including plots and saved model parameters.
 
