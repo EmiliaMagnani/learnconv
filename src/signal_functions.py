@@ -92,27 +92,31 @@ def truncated_sine_series(input_points, decay_rate, num_terms):
 
 def truncated_fourier_series(input_points, decay_rate, num_terms):
     """
-    Computes a truncated Fourier series approximation using exponential terms.
+    Computes a truncated Fourier series approximation with both positive and negative frequency components.
 
     Parameters:
     ----------
     input_points : numpy.ndarray or float
         The points (e.g., time or position) where the Fourier series is evaluated.
     decay_rate : float
-        The exponent that controls the decay rate of the Fourier coefficients.
+        The exponent controlling the decay rate of the terms.
     num_terms : int
-        The number of terms to include in the summation.
+        The number of terms to include in each of the positive and negative frequency summations.
 
     Returns:
     -------
     numpy.ndarray or float
-        The computed Fourier series approximation at each value of `input_points`,
-        using both positive and negative frequency components.
+        The computed Fourier series approximation at each value of `input_points`.
     """
-    positive_terms = (sum(np.exp(1j * 2 * k * np.pi * input_points) / (k ** decay_rate)) for k in range(1, num_terms + 2))
-    negative_terms = (sum(np.exp(1j * 2 * k * np.pi * input_points) / (k ** decay_rate)) for k in range(-num_terms, 0))
+    # Compute the positive frequency terms and convert to an array
+    positive_terms = sum(np.exp(1j * 2 * k * np.pi * input_points) / (k ** decay_rate) for k in range(1, num_terms + 2))
     
+    # Compute the negative frequency terms and convert to an array
+    negative_terms = sum(np.exp(1j * 2 * k * np.pi * input_points) / (k ** decay_rate) for k in range(-num_terms, 0))
+    
+    # Return the sum of positive and negative terms
     return positive_terms + negative_terms
+
 
 
 def piecewise_linear_signal(input_points, period):

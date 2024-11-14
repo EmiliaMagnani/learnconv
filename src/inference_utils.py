@@ -130,7 +130,7 @@ def run_inference_frequency_localized(num_samples, time_array, time_span, kernel
     Y_fourier = compute_fourier_coeff(Y, time_span)
 
     # Regularization and Fourier prediction
-    lamb =  num_samples ** (-1 / (2 * alpha + 1 + 1/b))   #1e-4 *
+    lamb = num_samples ** (-1 / (2 * alpha + 1 + 1/b))   #1e-4 *
     prediction_fourier_coeff = np.zeros(time_array.size, dtype=np.complex128)
 
     for l in range(time_array.size):

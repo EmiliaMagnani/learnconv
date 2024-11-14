@@ -6,7 +6,10 @@ from tueplots import bundles
 # Define colors
 red = np.array([141.0, 45.0, 57.0]) / 255.0
 dark = np.array([51.0, 51.0, 51.0]) / 255.0
-
+my_pink = np.array([0.68627451, 0.43137255, 0.58823529])
+blue = np.array([0.0, 0.41176471, 0.66666667])
+gold = np.array([174.0, 159.0, 109.0]) / 255.0
+lgold = np.array([1, 1, 1]) - 0.5 * (np.array([1, 1, 1]) - gold)
 
 def plot_error_with_std(num_samples, error_sampmean, error_sampstd):
     """
@@ -63,7 +66,7 @@ def plot_error_with_std(num_samples, error_sampmean, error_sampstd):
         plt.show()
 
 
-def plot_compare_error_with_std(num_samples, error_sampmean1, error_sampmean2, error_sampstd1, error_sampstd2, xlabel="N", ylabel=r'Error $\parallel \tilde{w} - w^* \parallel_{\mathcal{H}} ^2$', title=None):
+def plot_compare_errors_with_std(num_samples, error_sampmean1, error_sampmean2, error_sampstd1, error_sampstd2, xlabel="N", ylabel=r'Error $\parallel \tilde{w} - w^* \parallel_{\mathcal{H}} ^2$', title=None):
     """
     Plots two mean errors with standard deviations as error bars for comparison.
     
@@ -119,6 +122,7 @@ def plot_compare_error_with_std(num_samples, error_sampmean1, error_sampmean2, e
         plt.show()
 
 
+
 def plot_true_vs_approximation(time_array, target, prediction):
     """
     Plots the true solution and the approximation.
@@ -152,6 +156,46 @@ def plot_true_vs_approximation(time_array, target, prediction):
     
     # Show the plot
     plt.show()
+
+
+def plot_compare_approximations(time_array, target, prediction_freq_loc, prediction_time_loc):
+    """
+    Plots the true solution and the approximation.
+
+    Parameters:
+    ----------
+    time_array : numpy.ndarray
+        Array of time points.
+    prediction1 : numpy.ndarray
+        First pproximation of the true solution (e.g. with frequency localized inputs).
+    prediction2 : numpy.ndarray
+        Second approximation of the true solution (e.g. with time localized inputs).
+    target : numpy.ndarray
+        True solution.
+    
+    Returns:
+    -------
+    None
+    """
+    
+    # Create the plot
+    fig, ax = plt.subplots(1,)
+    
+
+    
+    # Plot approximation
+    ax.plot(time_array, prediction_freq_loc, label='freq-loc inputs', linewidth=2.5, color=gold)
+    ax.plot(time_array, prediction_time_loc, label='time-loc inputs', linewidth =2.5, color=red)
+
+    # Plot true solution
+    ax.plot(time_array, target, label='True solution', color=dark)
+    
+    # Add a legend
+    ax.legend()
+    
+    # Show the plot
+    plt.show()
+
 
 
 
