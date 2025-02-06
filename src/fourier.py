@@ -27,3 +27,92 @@ def compute_fourier_coeff(signal_values,time_span):
     num_samples = len(signal_values)
     return np.fft.fft(signal_values, axis=0) * time_span / num_samples
 
+
+def compute_inverse_fourier_coeff(F, time_span):
+    """
+    Reconstructs the time-domain signal from Fourier coefficients computed by compute_fourier_coeff.
+    
+    Parameters:
+    -----------
+    F : numpy.ndarray
+        Fourier coefficients of the signal, as computed by compute_fourier_coeff.
+    time_span : float
+        The total time span (T) over which the signal is defined.
+    
+    Returns:
+    --------
+    numpy.ndarray
+        The reconstructed time-domain signal.
+        
+    Notes:
+    ------
+    The function assumes that F was computed as:
+    
+        F = np.fft.fft(signal_values, axis=0) * time_span / num_samples
+    
+    Hence, the inverse transform scales the result of np.fft.ifft by (num_samples/time_span)
+    to recover the original signal.
+    """
+    num_samples = len(F)
+    # Compute the inverse FFT and multiply by (N/T) to undo the forward scaling.
+    reconstructed_signal = np.fft.ifft(F, axis=0) * (num_samples / time_span)
+    return reconstructed_signal
+
+
+# def get_fourier_coeffs(decay, time_span, n_sample_points, c0, scale):
+#     """
+#     Constructs a vector of Fourier coefficients for a signal (or kernel), where:
+#       - The zero-frequency (DC) coefficient is set to c0.
+#       - For nonzero frequencies, the coefficients decay as 1/|l|^decay,
+#         scaled by the factor 'scale'.
+    
+#     Parameters:
+#     -----------
+#     decay : float
+#         The exponent that controls the decay rate of the Fourier coefficients.
+#     time_span : float
+#         The total time span (period) of the signal.
+#     n_sample_points : int
+#         The number of sample points (and Fourier coefficients).
+#     c0 : float, optional
+#         The Fourier coefficient at l = 0. (Default is 1/2.)
+#     scale : float, optional
+#         The scaling factor for the nonzero Fourier coefficients.
+        
+#     Returns:
+#     --------
+#     F : numpy.ndarray (complex)
+#         The array of Fourier coefficients, arranged in the order used by np.fft.ifft.
+#     """
+#     # Compute the sampling interval.
+#     d = time_span / n_sample_points
+    
+#     # Get the frequency bins: these tell us which Fourier mode corresponds to each index.
+#     freqs = np.fft.fftfreq(n_sample_points, d=d)
+    
+#     # Allocate the Fourier coefficient vector.
+#     F = np.empty(n_sample_points, dtype=complex)
+    
+#     # Set coefficients: for l = 0, use c0; for l != 0, use scale/|l|^decay.
+#     for k, l in enumerate(freqs):
+#         if l == 0:
+#             F[k] = c0
+#         else:
+#             F[k] = scale / (abs(l)**decay)
+            
+#     return F
+
+
+def get_fourier_coeffs(decay, time_span, n_sample_points, c0, scale):
+    """
+    Constructs a vector of Fourier coefficients with a specified decay.
+    """
+    d = time_span / n_sample_points
+    freqs = np.fft.fftfreq(n_sample_points, d=d)
+    F = np.empty(n_sample_points, dtype=complex)
+    F[freqs == 0] = c0
+    nonzero = freqs != 0
+    F[nonzero] = scale / (np.abs(freqs[nonzero]) ** decay)
+    return F
+
+

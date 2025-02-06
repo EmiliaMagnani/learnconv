@@ -1,6 +1,8 @@
 import numpy as np
 
 
+# List of kernels in time space 
+
 def complex_exponential_kernel(input_values, decay_rate, num_terms):
     """
     Computes the kernel function using complex exponentials, which includes
@@ -32,19 +34,34 @@ def complex_exponential_kernel(input_values, decay_rate, num_terms):
 
 
 
-# def complex_exponential_kernel(t,gamma,M):
-    # return 1 + sum((np.exp(1j*2*k*np.pi*t) / (k**gamma)) for k in range(1,M+1)) + sum((np.exp(1j*2*k*np.pi*t) / (np.abs(k)**gamma)) for k in range(-M,0))
+
+# define the kernel k(t) = 3t^2 -3t +1 
+def periodic_sobolev(t):
+    """
+    Computes the polynomial kernel function k(t) = 3t^2 - 3t + 1 for a given input value or array of input values.
+    
+    Parameters:
+    ----------
+    t : float or numpy.ndarray
+        The input values where the kernel is evaluated.
+    
+    Returns:
+    -------
+    numpy.ndarray or float
+        The computed periodic Sobolev kernel function at each input value.
+    """
+    return 3 * t**2 - 3 * t + 1
 
 
 
-def cosine_kernel(input_values, decay_rate, num_terms):
+def cosine_kernel(t, decay_rate, num_terms):
     """
     Computes the kernel function using cosine terms, which includes only 
     positive frequency components.
 
     Parameters:
     ----------
-    input_values : numpy.ndarray or float
+    t : numpy.ndarray or float
         Input time or position values where the kernel function is evaluated.
     decay_rate : float
         Exponent controlling the decay of the cosine kernel function.
@@ -57,7 +74,7 @@ def cosine_kernel(input_values, decay_rate, num_terms):
         The computed cosine kernel function at each value of `input_values`.
     """
     term_indices = np.arange(1, num_terms + 1).reshape(-1, 1)
-    cosine_terms = np.sum(2* np.cos(2 * term_indices * np.pi * input_values) / (term_indices ** decay_rate), axis=0)
+    cosine_terms = np.sum(2* np.cos(2 * term_indices * np.pi * t) / (term_indices ** decay_rate), axis=0)
     
     return 1 + cosine_terms
 
@@ -67,14 +84,14 @@ def cosine_kernel(input_values, decay_rate, num_terms):
 
 import numpy as np
 
-def dirichlet_kernel(input_values, order, L=1):
+def dirichlet_kernel(t, order, L=1):
     """
-    Computes the Dirichlet kernel on the torus for a given order N and angle theta,
+    Computes the Dirichlet kernel on the torus for a given order ,
     periodic with period 1 and defined in [-L, L].
     
     Parameters:
     ----------
-    input_values : numpy.ndarray or float
+    t : numpy.ndarray or float
         The angle(s) on the torus (typically in radians).
     order : int
         The order of the Dirichlet kernel (number of harmonics).
@@ -87,27 +104,27 @@ def dirichlet_kernel(input_values, order, L=1):
         The value of the Dirichlet kernel at each angle theta, periodic with period 1.
     """
     # Map theta to the interval [-L, L]
-    input_values = np.mod(input_values + L, 2 * L) - L
+    t = np.mod(t + L, 2 * L) - L
     
     # Handle the case when theta is very close to zero (to avoid division by zero)
     epsilon = 1e-12
-    input_values = np.where(np.abs(input_values) < epsilon, epsilon, input_values)
+    t = np.where(np.abs(t) < epsilon, epsilon, t)
     
     # Compute the Dirichlet kernel
-    kernel_values = np.sin((order + 0.5) * input_values * np.pi / L) / np.sin(0.5 * input_values * np.pi / L)
+    kernel_values = np.sin((order + 0.5) * t * np.pi / L) / np.sin(0.5 * t * np.pi / L)
     
     return kernel_values
 
 import numpy as np
 
-def dirichlet_kernel_shifted(input_values, order, L):
+def dirichlet_kernel_shifted(t, order, L):
     """
     Computes the Dirichlet kernel on the torus for a given order, 
     periodic with period 2π and defined in [0, 2L] with the maximum at L.
     
     Parameters:
     ----------
-    input_values : numpy.ndarray or float
+    t : numpy.ndarray or float
         The angle(s) on the torus (typically in radians).
     order : int
         The order of the Dirichlet kernel (number of harmonics).
@@ -120,10 +137,10 @@ def dirichlet_kernel_shifted(input_values, order, L):
         The value of the Dirichlet kernel at each angle, periodic with period 2π and maximum at L.
     """
     # Map input_values to the interval [0, 2L]
-    input_values = np.mod(input_values, 2 * L)
+    t = np.mod(t, 2 * L)
     
     # Shift input values to place the maximum at L
-    shifted_input = input_values - L
+    shifted_input = t - L
 
     # Handle cases where shifted_input is very close to zero (to avoid division by zero)
     epsilon = 1e-12
@@ -136,13 +153,13 @@ def dirichlet_kernel_shifted(input_values, order, L):
 
 
 
-def periodic_kernel(input_values, p, sigma=1.0, length_scale=1.0):
+def periodic_kernel(t, p, sigma=1.0, length_scale=1.0):
     """
     Computes the periodic kernel for an input value or array of input values.
     
     Parameters:
     ----------
-    input_values : float or numpy.ndarray
+    t : float or numpy.ndarray
         The input values where the kernel is evaluated.
     p : float
         The period of the kernel.
@@ -157,7 +174,7 @@ def periodic_kernel(input_values, p, sigma=1.0, length_scale=1.0):
         The computed periodic kernel for the input values.
     """
     # Compute the sine-based distance to capture periodicity
-    dist = np.sin(np.pi * input_values / p)
+    dist = np.sin(np.pi * t / p)
     
     # Compute the periodic kernel
     return sigma**2 * np.exp(-2 * (dist**2) / length_scale**2)
@@ -165,4 +182,3 @@ def periodic_kernel(input_values, p, sigma=1.0, length_scale=1.0):
 
 def exp_decay_torus(input_values,gamma):
     return gamma / (gamma + (np.sin(np.pi*input_values))**2)
-
