@@ -5,3 +5,6 @@ src/learnconv.egg-info/SOURCES.txt
 src/learnconv.egg-info/dependency_links.txt
 src/learnconv.egg-info/requires.txt
 src/learnconv.egg-info/top_level.txt
+tests/test_fourier.py
+tests/test_kernels.py
+tests/test_sampling.py

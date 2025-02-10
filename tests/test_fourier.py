@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 from src.fourier import compute_fourier_coeff, compute_inverse_fourier_coeff, get_fourier_coeffs
 
 def test_fourier_inverse():

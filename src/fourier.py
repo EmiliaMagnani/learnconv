@@ -59,60 +59,112 @@ def compute_inverse_fourier_coeff(F, time_span):
     return reconstructed_signal
 
 
-# def get_fourier_coeffs(decay, time_span, n_sample_points, c0, scale):
-#     """
-#     Constructs a vector of Fourier coefficients for a signal (or kernel), where:
-#       - The zero-frequency (DC) coefficient is set to c0.
-#       - For nonzero frequencies, the coefficients decay as 1/|l|^decay,
-#         scaled by the factor 'scale'.
-    
-#     Parameters:
-#     -----------
-#     decay : float
-#         The exponent that controls the decay rate of the Fourier coefficients.
-#     time_span : float
-#         The total time span (period) of the signal.
-#     n_sample_points : int
-#         The number of sample points (and Fourier coefficients).
-#     c0 : float, optional
-#         The Fourier coefficient at l = 0. (Default is 1/2.)
-#     scale : float, optional
-#         The scaling factor for the nonzero Fourier coefficients.
-        
-#     Returns:
-#     --------
-#     F : numpy.ndarray (complex)
-#         The array of Fourier coefficients, arranged in the order used by np.fft.ifft.
-#     """
-#     # Compute the sampling interval.
-#     d = time_span / n_sample_points
-    
-#     # Get the frequency bins: these tell us which Fourier mode corresponds to each index.
-#     freqs = np.fft.fftfreq(n_sample_points, d=d)
-    
-#     # Allocate the Fourier coefficient vector.
-#     F = np.empty(n_sample_points, dtype=complex)
-    
-#     # Set coefficients: for l = 0, use c0; for l != 0, use scale/|l|^decay.
-#     for k, l in enumerate(freqs):
-#         if l == 0:
-#             F[k] = c0
-#         else:
-#             F[k] = scale / (abs(l)**decay)
-            
-#     return F
-
-
 def get_fourier_coeffs(decay, time_span, n_sample_points, c0, scale):
     """
-    Constructs a vector of Fourier coefficients with a specified decay.
+    Constructs a vector of Fourier coefficients for a signal (or kernel), where:
+      - The zero-frequency (DC) coefficient is set to c0.
+      - For nonzero frequencies, the coefficients decay as 1/|l|^decay,
+        scaled by the factor 'scale'.
+    
+    Parameters:
+    -----------
+    decay : float
+        The exponent that controls the decay rate of the Fourier coefficients.
+    time_span : float
+        The total time span (period) of the signal.
+    n_sample_points : int
+        The number of sample points (and Fourier coefficients).
+    c0 : float, optional
+        The Fourier coefficient at l = 0. (Default is 1/2.)
+    scale : float, optional
+        The scaling factor for the nonzero Fourier coefficients.
+        
+    Returns:
+    --------
+    F : numpy.ndarray (complex)
+        The array of Fourier coefficients, arranged in the order used by np.fft.ifft.
     """
+    # Compute the sampling interval.
     d = time_span / n_sample_points
+    
+    # Get the frequency bins: these tell us which Fourier mode corresponds to each index.
     freqs = np.fft.fftfreq(n_sample_points, d=d)
+    
+    # Allocate the Fourier coefficient vector.
     F = np.empty(n_sample_points, dtype=complex)
+    
+    # Set coefficients: for l = 0, use c0; for l != 0, use scale/|l|^decay.
+    # for k, l in enumerate(freqs):
+    #     if l == 0:
+    #         F[k] = c0
+    #     else:
+    #         F[k] = scale / (abs(l)**decay)
+
+    # vectorized: 
     F[freqs == 0] = c0
     nonzero = freqs != 0
     F[nonzero] = scale / (np.abs(freqs[nonzero]) ** decay)
+
     return F
+   
+
+def get_fourier_coeffs_balanced(decay, time_span, n_sample_points, c0, scale, balancing_vector=None):
+    """
+    Constructs a vector of Fourier coefficients for a signal. For the nonzero
+    frequencies the coefficients are computed as:
+    
+        F[l]  = balancing_vector[l] * (scale / |l|^decay)
+    
+    where the balancing factor is an explicit balancing_vector (which must have length n_sample_points).
+    
+    Parameters
+    ----------
+    decay : float
+        The exponent controlling the base decay.
+    time_span : float
+        The total time span (period) of the signal.
+    n_sample_points : int
+        The number of sample points (and Fourier coefficients).
+    c0 : float
+        The Fourier coefficient at zero frequency.
+    scale : float
+        The base scaling factor.
+    balancing_vector : array-like, optional
+        A vector of balancing factors for each frequency. 
+        
+    Returns
+    -------
+    F : numpy.ndarray (complex)
+        The array of Fourier coefficients arranged in the order used by np.fft.ifft.
+    """
+    # Compute the sampling interval.
+    d = time_span / n_sample_points
+    # Get the frequency bins.
+    freqs = np.fft.fftfreq(n_sample_points, d=d)
+    
+    # Allocate the Fourier coefficient vector.
+    F = np.empty(n_sample_points, dtype=complex)
+    
+    # Set the zero-frequency (DC) term.
+    F[freqs == 0] = c0
+    
+    # Identify nonzero frequency indices.
+    nonzero = freqs != 0
+    
+    # Base coefficients (without the balancing factor)
+    base_coeffs = scale / (np.abs(freqs[nonzero]) ** decay)
+    
+    # Apply balancing: either using a provided vector or a scalar exponent.
+    if balancing_vector is not None:
+        balancing_vector = np.asarray(balancing_vector)
+        if balancing_vector.shape[0] != n_sample_points:
+            raise ValueError("balancing_vector must have length equal to n_sample_points")
+        F[nonzero] = balancing_vector[nonzero] * base_coeffs
+    else:
+        F[nonzero] = base_coeffs
+    
+    return F
+
+
 
 
