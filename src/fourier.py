@@ -106,16 +106,19 @@ def get_fourier_coeffs(decay, time_span, n_sample_points, c0, scale):
     F[nonzero] = scale / (np.abs(freqs[nonzero]) ** decay)
 
     return F
-   
+
 
 def get_fourier_coeffs_balanced(decay, time_span, n_sample_points, c0, scale, balancing_vector=None):
     """
     Constructs a vector of Fourier coefficients for a signal. For the nonzero
     frequencies the coefficients are computed as:
     
-        F[l]  = balancing_vector[l] * (scale / |l|^decay)
+        F[l] = balancing_vector[l] * (scale / |l|^decay)
     
-    where the balancing factor is an explicit balancing_vector (which must have length n_sample_points).
+    where the balancing factor is an explicit balancing_vector (which must have
+    length n_sample_points). When n_sample_points is even, the Nyquist frequency
+    (at index n_sample_points//2) is forced to be real to ensure a real time-domain
+    signal.
     
     Parameters
     ----------
@@ -130,7 +133,7 @@ def get_fourier_coeffs_balanced(decay, time_span, n_sample_points, c0, scale, ba
     scale : float
         The base scaling factor.
     balancing_vector : array-like, optional
-        A vector of balancing factors for each frequency. 
+        A vector of balancing factors for each frequency.
         
     Returns
     -------
@@ -154,7 +157,7 @@ def get_fourier_coeffs_balanced(decay, time_span, n_sample_points, c0, scale, ba
     # Base coefficients (without the balancing factor)
     base_coeffs = scale / (np.abs(freqs[nonzero]) ** decay)
     
-    # Apply balancing: either using a provided vector or a scalar exponent.
+    # Apply balancing: if a balancing_vector is provided, use it; otherwise, use the base coefficients.
     if balancing_vector is not None:
         balancing_vector = np.asarray(balancing_vector)
         if balancing_vector.shape[0] != n_sample_points:
@@ -162,7 +165,12 @@ def get_fourier_coeffs_balanced(decay, time_span, n_sample_points, c0, scale, ba
         F[nonzero] = balancing_vector[nonzero] * base_coeffs
     else:
         F[nonzero] = base_coeffs
-    
+
+    # For an even number of sample points, ensure the Nyquist frequency is real.
+    if n_sample_points % 2 == 0:
+        nyquist_index = n_sample_points // 2
+        F[nyquist_index] = F[nyquist_index].real
+
     return F
 
 

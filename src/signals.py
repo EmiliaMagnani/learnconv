@@ -132,6 +132,44 @@ def construct_sine_series_signal(t, decay_rate, num_terms):
     return sum((2 * np.sin(2 * j * np.pi * t) / (j ** decay_rate)) for j in range(1, num_terms + 2))
 
 
+# def construct_sine_series_signal(t, amplitudes):
+#     """
+#     Computes a truncated sine series approximation of a function using a provided vector of amplitudes.
+    
+#     The function computes:
+#         w(t) = sum_{j=1}^N amplitudes[j-1] * sin(2*pi*j*t)
+    
+#     Parameters:
+#     ----------
+#     t : numpy.ndarray or float
+#         The points (e.g., time or position) where the sine series is evaluated.
+#     amplitudes : array-like
+#         A vector (list or numpy array) of amplitudes for the sine terms. The j-th element corresponds
+#         to the amplitude for sin(2*pi*j*t).
+        
+#     Returns:
+#     -------
+#     numpy.ndarray
+#         The computed sine series approximation evaluated at each point in `t`.
+#     """
+#     t = np.atleast_1d(t)
+#     amplitudes = np.asarray(amplitudes)
+    
+#     # Create an array of term indices: [1, 2, ..., N]
+#     j = np.arange(1, len(amplitudes) + 1)
+    
+#     # Compute the sine terms.
+#     # np.outer(t, j) creates a 2D array with shape (len(t), len(amplitudes)),
+#     # where each column corresponds to sin(2*pi*j*t) for a fixed j.
+#     sine_terms = np.sin(2 * np.pi * np.outer(t, j))
+    
+#     # Multiply each column by the corresponding amplitude and sum along the terms axis.
+#     result = sine_terms @ amplitudes  # This is equivalent to np.dot(sine_terms, amplitudes)
+    
+#     return result
+
+
+
 def truncated_fourier_series(input_points, decay_rate, num_terms):
     """
     Computes a truncated Fourier series approximation with both positive and negative frequency components.
