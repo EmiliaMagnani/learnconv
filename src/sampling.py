@@ -31,6 +31,38 @@ def power_law_samples(n_samples, max_value, exponent, rng):
     samples = rng.choice(np.arange(1, max_value + 1), size=n_samples, p=probabilities)
     return samples
 
+def power_law_samples_symmetric_including_dc(n_samples, max_value, exponent, rng, dc_weight=.5):
+    """
+    Generates n_samples from a symmetric power-law distribution over
+    candidates that include 0, negative frequencies, and positive frequencies.
+    
+    The candidate list is:
+        [0, -max_value, ..., -1, 1, ..., max_value]
+    and the weights are given by:
+        weight(0) = dc_weight,
+        weight(x) = 1/|x|^exponent for x != 0.
+    """
+    import numpy as np
+    
+    # Create candidate frequencies, now including 0.
+    candidates = np.concatenate(([0], np.arange(-max_value, 0), np.arange(1, max_value + 1)))
+    
+    # Compute weights for each candidate.
+    weights = []
+    for x in candidates:
+        if x == 0:
+            weights.append(dc_weight)
+        else:
+            weights.append(1.0 / (abs(x) ** exponent))
+    weights = np.array(weights)
+    
+    # Normalize to form a probability distribution.
+    probabilities = weights / np.sum(weights)
+    
+    # Draw samples using the computed probabilities.
+    samples = rng.choice(candidates, size=n_samples, p=probabilities)
+    return samples
+
 
 
 def power_law_samples_symmetric(n_samples, max_value, exponent, rng):
