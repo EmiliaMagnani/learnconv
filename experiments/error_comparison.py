@@ -156,12 +156,12 @@ freq_loc_params = f"n{num_samples}_grid_size{grid_size}_seed{seed}_noise{noise}_
 time_loc_params = f"n{num_samples}_gird_size{grid_size}_seed{seed}_noise{noise}_locparam{loc_parameter}"
 
 # Save frequency-localized results with freq-loc specific parameters
-np.save(f'results/freq_loc_error_squared_sampmean_{freq_loc_params}.npy', error_squared_sampmean_freq_loc)
-np.save(f'results/freq_loc_error_squared_sampstd_{freq_loc_params}.npy', error_squared_sampstd_freq_loc)
+np.save(f'learnconv_results/freq_loc_error_squared_sampmean_{freq_loc_params}.npy', error_squared_sampmean_freq_loc)
+np.save(f'learnconv_results/freq_loc_error_squared_sampstd_{freq_loc_params}.npy', error_squared_sampstd_freq_loc)
 
 # Save time-localized results with time-loc specific parameters
-np.save(f'results/time_loc_error_squared_sampmean_{time_loc_params}.npy', error_squared_sampmean_time_loc)
-np.save(f'results/time_loc_error_squared_sampstd_{time_loc_params}.npy', error_squared_sampstd_time_loc)
+np.save(f'learnconv_results/time_loc_error_squared_sampmean_{time_loc_params}.npy', error_squared_sampmean_time_loc)
+np.save(f'learnconv_results/time_loc_error_squared_sampstd_{time_loc_params}.npy', error_squared_sampstd_time_loc)
 
 #Finallly let's compute and save the predictions in time domain for n=100 samples
 
@@ -190,5 +190,5 @@ _, prediction_time_loc = compute_prediction(
     optimize_lambda=True
 )
 
-np.save(f'results/freq_loc_prediction_{freq_loc_params}.npy', prediction_freq_loc)
-np.save(f'results/time_loc_prediction_{time_loc_params}.npy', prediction_time_loc)
+np.save(f'learnconv_results/freq_loc_prediction_{freq_loc_params}.npy', prediction_freq_loc)
+np.save(f'learnconv_results/time_loc_prediction_{time_loc_params}.npy', prediction_time_loc)
