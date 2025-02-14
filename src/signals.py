@@ -3,7 +3,7 @@ import numpy as np
 
 # Signal samples and data generation
 
-def generate_frequency_localized_samples(n_samples, time_array, max_value, exponent, power_law_func, seed=None):
+def generate_frequency_localized_samples(n_samples, time_array, max_value, exponent, power_law_func, rng):
     """
     Generates frequency-localized samples using random frequencies drawn from a power-law distribution.
 
@@ -28,8 +28,6 @@ def generate_frequency_localized_samples(n_samples, time_array, max_value, expon
     numpy.ndarray
         Frequency-localized sample matrix. (len(time_array),n_samples)
     """
-    # # Create a local random generator with the provided seed
-    rng = np.random.default_rng(seed)
     
     # Generate random frequencies using the power-law distribution
     frequencies = power_law_func(n_samples, max_value, exponent, rng)
@@ -41,7 +39,7 @@ def generate_frequency_localized_samples(n_samples, time_array, max_value, expon
     return X
 
 
-def generate_time_localized_samples(n_samples, time_array, delta, seed=None):
+def generate_time_localized_samples(n_samples, time_array, delta, rng):
     """
     Generates time-localized samples using a normal distribution and creates a time-localized array.
     
@@ -62,8 +60,8 @@ def generate_time_localized_samples(n_samples, time_array, delta, seed=None):
     numpy.ndarray
         Time-localized sample matrix of shape (len(time_array), n_samples)
     """
-    # Create a random number generator with the given seed (or use system entropy if seed is None)
-    rng = np.random.default_rng(seed)
+    # # Create a random number generator with the given seed (or use system entropy if seed is None)
+    # rng = np.random.default_rng(seed)
     
     # Generate random times using the RNG
     random_times = rng.normal(0.5, 0.16, n_samples)

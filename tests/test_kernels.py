@@ -1,4 +1,4 @@
-from src.kernels import periodic_sobolev
+from kernels import periodic_sobolev
 import numpy as np
 
 def test_periodic_sobolev_scalar():
@@ -14,3 +14,4 @@ def test_periodic_sobolev_array():
     expected = 3 * t**2 - 3 * t + 1
     result = periodic_sobolev(t)
     np.testing.assert_allclose(result, expected)
+

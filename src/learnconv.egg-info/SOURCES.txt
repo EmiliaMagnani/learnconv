@@ -8,3 +8,6 @@ src/learnconv.egg-info/top_level.txt
 tests/test_fourier.py
 tests/test_kernels.py
 tests/test_sampling.py
+tests/test_sigma_decay.py
+tests/test_sigmas.py
+tests/test_signals.py

@@ -33,14 +33,45 @@ def power_law_samples(n_samples, max_value, exponent, rng):
 
 def power_law_samples_symmetric_including_dc(n_samples, max_value, exponent, rng, dc_weight=.5):
     """
-    Generates n_samples from a symmetric power-law distribution over
-    candidates that include 0, negative frequencies, and positive frequencies.
+    Generate samples from a symmetric power-law distribution over candidate frequencies,
+    including the DC (zero-frequency) component.
     
-    The candidate list is:
-        [0, -max_value, ..., -1, 1, ..., max_value]
-    and the weights are given by:
-        weight(0) = dc_weight,
-        weight(x) = 1/|x|^exponent for x != 0.
+    The candidate frequencies are constructed as:
+        [0, -max_value, -max_value+1, ..., -1, 1, ..., max_value]
+    For each candidate frequency x, a weight is assigned as follows:
+        - For x == 0 (the DC component), the weight is set to dc_weight.
+        - For x != 0, the weight is computed as 1 / |x|**exponent.
+    
+    These weights are normalized to form a probability distribution over the candidate set.
+    Then, n_samples frequencies are drawn randomly according to this probability distribution.
+    
+    Parameters
+    ----------
+    n_samples : int
+        The number of frequency samples to generate.
+    max_value : int
+        The maximum absolute frequency value. The candidate set consists of integers from -max_value
+        to max_value, with 0 added separately.
+    exponent : float
+        The exponent in the power-law decay. Larger values yield lower probabilities for higher frequencies.
+    rng : numpy.random.Generator
+        A random number generator instance (e.g., created with np.random.default_rng(seed)).
+        This is used to ensure reproducible sampling.
+    dc_weight : float, optional
+        The weight assigned to the zero frequency (DC component). Default is 0.5.
+    
+    Returns
+    -------
+    samples : numpy.ndarray
+        A one-dimensional array of length n_samples containing the sampled frequencies.
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> rng = np.random.default_rng(42)
+    >>> samples = power_law_samples_symmetric_including_dc(5, 10, 2.0, rng, dc_weight=0.5)
+    >>> samples
+    array([  0,  -1,   2,  -3,   1])
     """
     import numpy as np
     

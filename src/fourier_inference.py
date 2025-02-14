@@ -97,119 +97,6 @@ def _compute_prediction_given_lambda(
 
     return prediction_fourier, np.real(prediction_time_domain)
 
-# def compute_prediction(
-#     num_samples,
-#     time_array,
-#     time_span,
-#     kernel_coeff,
-#     target_coeff,
-#     noise,
-#     X,
-#     lamb=None,
-#     optimize_lambda=False,
-#     lambda_candidates=None
-# ):
-#     """
-#     Runs inference (in Fourier domain) for input signals X and returns the Fourier coefficients of the prediction,
-#     and the prediction in the time domain.
-#     Optionally, perform a grid search over lambda by setting optimize_lambda=True.
-#     In that case, the function will choose the lambda candidate that minimizes the RKHS error
-#     (i.e., sum(|prediction_fourier - target_coeff|^2 / kernel_coeff)).
-
-#     Parameters
-#     ----------
-#     num_samples : int
-#         The number of samples used for the prediction.
-#     time_array : numpy.ndarray
-#         Array of time points.
-#     time_span : float
-#         Total time span.
-#     kernel_coeff : numpy.ndarray
-#         Array of kernel coefficients (Fourier domain).
-#     target_coeff : numpy.ndarray
-#          Fourier coefficients of the target function.
-#     noise : float
-#         Standard deviation of the noise added to the output.
-#     X : numpy.ndarray
-#         The sample matrix (time-domain) with shape (len(time_array), num_samples).
-#     lamb : float, optional
-#         The regularization parameter (required if optimize_lambda is False).
-#     optimize_lambda : bool, default False
-#         If True, perform a grid search over lambda_candidates.
-#     lambda_candidates : array-like, optional
-#         A list or array of candidate lambda values. If None, the candidates will be computed internally from X.
-
-#     Returns
-#     -------
-#     prediction_fourier : numpy.ndarray
-#         The predicted Fourier coefficients.
-#     prediction_time_domain : numpy.ndarray
-#         The time-domain prediction.
-#     """
-#     if optimize_lambda:
-#         # If a lambda is provided when grid search is requested, raise an error.
-#         if lamb is not None:
-#             raise ValueError(
-#                 "When optimize_lambda is True, parameter 'lamb' must not be provided. "
-#                 "Lambda will be optimized via grid search."
-#             )
-            
-#         # If no candidates are provided, compute them dynamically based on X.
-#         if lambda_candidates is None:
-#             # Compute Fourier coefficients based on your sample X.
-#             X_fourier = compute_fourier_coeff(X, time_span)
-#             lambda_left = np.min(np.abs(X_fourier)**2)
-#             lambda_right = np.max(np.abs(X_fourier)**2)
-
-#             epsilon = 1e-8
-#             offset = 1e-1
-#             lower_bound = lambda_left - offset if lambda_left > offset else lambda_left
-#             lower_bound = max(lower_bound, epsilon)
-#             upper_bound = lambda_right + 1
-
-#             # Print the computed lambda interval.
-#             print(f"Computed lambda interval: lower_bound={lower_bound}, upper_bound={upper_bound}")
-
-#             # Generate candidate values. Adjust num_candidates as needed.
-#             num_candidates = 350
-#             lambda_candidates = np.linspace(lower_bound, upper_bound, num_candidates)
-
-#         best_lambda = 1e-05
-#         best_error = np.sum(np.abs (_compute_prediction_given_lambda(
-#                 num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, best_lambda, X
-#             )[0] - target_coeff) ** 2 / kernel_coeff)
-#         print(f"Initial error with lambda = {best_lambda}: {best_error}")
-#         best_prediction_fourier, best_prediction_time_domain = _compute_prediction_given_lambda(
-#                 num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, best_lambda, X
-#             )
-#         # best_prediction_time_domain = None
-
-#         # Grid search over candidate lambda values.
-#         for candidate in lambda_candidates:
-#             pred_fourier, pred_time = _compute_prediction_given_lambda(
-#                 num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, candidate, X
-#             )
-#             error = np.sum(np.abs(pred_fourier - target_coeff) ** 2 / kernel_coeff)
-#             print(f"Candidate lambda = {candidate} has error = {error}")
-#             if error < best_error:
-#                 best_error = error
-#                 best_lambda = candidate
-#                 best_prediction_fourier = pred_fourier
-#                 best_prediction_time_domain = pred_time
-
-#         # Print the best lambda candidate and its error.
-#         print(f"Best lambda: {best_lambda} with error: {best_error}")
-#         return best_prediction_fourier, best_prediction_time_domain
-
-#     else:
-#         if lamb is None:
-#             raise ValueError("Parameter 'lamb' must be provided when optimize_lambda is False.")
-#         return _compute_prediction_given_lambda(
-#             num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X
-#         )
-
-#new:
-
 
 def compute_prediction(
     num_samples: int,
@@ -290,7 +177,7 @@ def compute_prediction(
         # Define the candidate search in logspace:
         k_min = 3  # exponent lower bound (e.g., sigma_max*10^-3)
         k_max = 1  # exponent upper bound (e.g., sigma_max*10^-1)
-        num_candidates = 40  # Adjust as needed
+        num_candidates = 30  # Adjust as needed
         lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
         
         print(f"Computed sigma_max = {sigma_max:.3e}")
@@ -311,7 +198,7 @@ def compute_prediction(
                 num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, candidate, X
             )
             error = np.sum(np.abs(pred_fourier - target_coeff) ** 2 / kernel_coeff)
-            print(f"Candidate lambda = {candidate:.3e} has error = {error:.3e}")
+            # print(f"Candidate lambda = {candidate:.3e} has error = {error:.3e}")
             if error < best_error:
                 best_error = error
                 best_lambda = candidate
@@ -430,5 +317,124 @@ def compute_error(
     return error_sampmean, error_sampstd
 
 
+def compute_operator_error(
+    num_samples,
+    num_experiments,
+    time_array,
+    time_span,
+    kernel_coeff,
+    target_coeff,
+    noise,
+    r,
+    b,
+    const,
+    sample_generator,
+    sample_gen_params,
+    optimize_lambda=False,
+    lambda_candidates=None
+):
+    """
+    Computes the squared operator error
+      ||Σ^(1/2)(w_n^λ - w_*)||²_H = ∑_{ξ} [\sigma * |(Fw_n^λ)_ξ - (Fw_*)_ξ|² / kernel_coeff[ξ]]
+    averaged over multiple experiments for sample sizes n = 1, 2, ..., num_samples.
+    
+    Here, \sigma is estimated by:
+         sigma_est[l] = kernel_coeff[l] * (1/n)*sum_{i=1}^n |(FX)_l(i)|^2.
+    
+    If optimize_lambda is True, the lambda is optimized using the operator error metric.
+    
+    Parameters
+    ----------
+    num_samples : int
+        Maximum number of samples (n). Errors are computed for each n = 1, 2, ..., num_samples.
+    num_experiments : int
+        Number of independent experiments to average over for each sample size.
+    time_array : numpy.ndarray
+        Array of time points.
+    time_span : float
+        Total time interval (e.g., the period of the signal).
+    kernel_coeff : numpy.ndarray
+        Fourier coefficients of the kernel (i.e. the \hat{K}_ξ values).
+    target_coeff : numpy.ndarray
+        Fourier coefficients of the target function w_*.
+    noise : float
+        Standard deviation of the noise.
+    r : float
+        The regularization exponent.
+    b : float
+        The source condition parameter.
+    const : float
+        Constant used to compute the regularization parameter λ (when not optimized).
+    sample_generator : callable
+        Function used to generate the sample matrix X. Must have signature:
+            X = sample_generator(n, time_array, **sample_gen_params)
+    sample_gen_params : dict
+        Additional parameters for sample_generator.
+    optimize_lambda : bool, default False
+        If True, grid search will be performed to optimize λ using the operator error metric.
+    lambda_candidates : array-like, optional
+        Candidate λ values. If None and optimize_lambda is True, candidates are computed automatically.
+    
+    Returns
+    -------
+    op_error_sampmean : numpy.ndarray
+        1D array (length=num_samples) of the mean squared operator error for each sample size.
+    op_error_sampstd : numpy.ndarray
+        1D array (length=num_samples) of the standard deviation of the operator error for each sample size.
+    """
+    op_error_sampmean = np.zeros(num_samples)
+    op_error_sampstd = np.zeros(num_samples)
+
+    for n in range(1, num_samples + 1):
+        errors = np.zeros(num_experiments)
+        for j in range(num_experiments):
+            # Generate the sample matrix X.
+            X = sample_generator(n, time_array, **sample_gen_params)
+            
+            # Compute Fourier coefficients of X.
+            X_fourier = compute_fourier_coeff(X, time_span)
+            # Empirical estimate of sigma_l:
+            sigma_est = kernel_coeff * np.sum(np.abs(X_fourier) ** 2, axis=1) / n  
+
+            if optimize_lambda:
+                # If no lambda_candidates are provided, define them based on sigma_est.
+                sigma_max = np.max(sigma_est)
+                if sigma_max < 1e-12:
+                    sigma_max = 1e-12
+                k_min = 3  # e.g., sigma_max*10^-3
+                k_max = 1  # e.g., sigma_max*10^-1
+                num_candidates = 30
+                lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
+
+                best_lambda = None
+                best_error = np.inf
+                # Manually perform grid search using the operator error metric.
+                for candidate in lambda_candidates:
+                    pred_fourier, _ = _compute_prediction_given_lambda(
+                        n, time_array, time_span, kernel_coeff, target_coeff, noise, candidate, X
+                    )
+                    diff = pred_fourier - target_coeff
+                    op_error = np.sum(sigma_est * np.abs(diff) ** 2 / kernel_coeff)
+                    if op_error < best_error:
+                        best_error = op_error
+                        best_lambda = candidate
+                        best_pred_fourier = pred_fourier
+                prediction_fourier = best_pred_fourier
+            else:
+                # Use fixed lambda computed from compute_lambda.
+                lamb = compute_lambda(const, n, r, b)
+                prediction_fourier, _ = _compute_prediction_given_lambda(
+                    n, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X
+                )
+
+            diff = prediction_fourier - target_coeff
+            # Compute operator error: sum_{ξ} [sigma_est[ξ] * |diff[ξ]|^2 / kernel_coeff[ξ]]
+            op_error = np.sum(sigma_est * np.abs(diff) ** 2 / kernel_coeff)
+            errors[j] = op_error
+
+        op_error_sampmean[n - 1] = np.mean(errors)
+        op_error_sampstd[n - 1] = np.std(errors)
+
+    return op_error_sampmean, op_error_sampstd
 
 
