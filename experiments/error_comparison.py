@@ -1,9 +1,7 @@
 import numpy as np
 from signals import  generate_frequency_localized_samples, generate_time_localized_samples, construct_sine_series_signal
-from sampling import  power_law_samples_symmetric
+from sampling import  power_law_samples_symmetric_including_dc
 from fourier import compute_fourier_coeff, compute_inverse_fourier_coeff, get_fourier_coeffs, get_fourier_coeffs_balanced
-from kernels import  periodic_sobolev
-from regularization import compute_lambda
 from fourier_inference import  compute_prediction, compute_error, compute_operator_error
 
 
@@ -108,7 +106,7 @@ X_time_loc = generate_time_localized_samples(num_samples, time_array, loc_parame
 sample_gen_params_freq_loc = {
     "max_value": freq_max,
     "exponent": freq_loc_inputs_decay,
-    "power_law_func": power_law_samples_symmetric,
+    "power_law_func": power_law_samples_symmetric_including_dc,
     "rng": rng,   ## to get error bars you need rng
 }
 error_squared_sampmean_freq_loc, error_squared_sampstd_freq_loc = compute_error(
@@ -192,3 +190,44 @@ _, prediction_time_loc = compute_prediction(
 
 np.save(f'learnconv_results/freq_loc_prediction_{freq_loc_params}.npy', prediction_freq_loc)
 np.save(f'learnconv_results/time_loc_prediction_{time_loc_params}.npy', prediction_time_loc)
+
+
+
+#operator error
+#freq-loc inputs
+op_error_squared_sampmean_freq_loc, op_error_squared_sampstd_freq_loc = compute_operator_error(
+    num_samples,
+    num_experiments,
+    time_array,
+    time_span,
+    kernel_coeff,
+    target_coeff,
+    noise,
+    r_freq_loc,
+    b_freq_loc,
+    const_lam,
+    generate_frequency_localized_samples,
+    sample_gen_params_freq_loc,
+    optimize_lambda=True  
+)
+
+#tim_loc inputs
+op_error_squared_sampmean_time_loc, op_error_squared_sampstd_time_loc = compute_operator_error(
+    num_samples,
+    num_experiments,
+    time_array,
+    time_span,
+    kernel_coeff,
+    target_coeff,
+    noise,
+    r_time_loc,
+    b_time_loc,
+    const_lam,
+    generate_time_localized_samples,
+    sample_gen_params_time_loc,
+    optimize_lambda=True  
+)
+np.save(f'learnconv_results/freq_loc_op_error_squared_sampmean_{freq_loc_params}.npy', op_error_squared_sampmean_freq_loc)
+np.save(f'learnconv_results/freq_loc_op_error_squared_sampstd_{freq_loc_params}.npy', op_error_squared_sampstd_freq_loc)
+np.save(f'learnconv_results/time_loc_op_error_squared_sampmean_{time_loc_params}.npy', op_error_squared_sampmean_time_loc)
+np.save(f'learnconv_results/time_loc_op_error_squared_sampstd_{time_loc_params}.npy', op_error_squared_sampstd_time_loc)
