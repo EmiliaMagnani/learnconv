@@ -175,9 +175,9 @@ def compute_prediction(
         sigma_max = np.max(sigma_values)
         
         # Define the candidate search in logspace:
-        k_min = 5  # exponent lower bound (e.g., sigma_max*10^-3)
+        k_min = 3  # exponent lower bound (e.g., sigma_max*10^-3)
         k_max = 1  # exponent upper bound (e.g., sigma_max*10^-1)
-        num_candidates = 40  # Adjust as needed
+        num_candidates = 35  # Adjust as needed
         lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
         
         print(f"Computed sigma_max = {sigma_max:.3e}")
@@ -428,7 +428,7 @@ def compute_operator_error(
                 )
 
             diff = prediction_fourier - target_coeff
-            # Compute operator error: sum_{ξ} [sigma_est[ξ] * |diff[ξ]|^2 / kernel_coeff[ξ]]
+            # Compute operator error: sum_{l} [sigma_est[l] * |diff[l]|^2 / kernel_coeff[l]]
             op_error = np.sum(sigma_est * np.abs(diff) ** 2 / kernel_coeff)
             errors[j] = op_error
 
@@ -436,5 +436,80 @@ def compute_operator_error(
         op_error_sampstd[n - 1] = np.std(errors)
 
     return op_error_sampmean, op_error_sampstd
+
+def compute_operator_error_sigmas_analytic(
+    num_samples,
+    num_experiments,
+    time_array,
+    time_span,
+    kernel_coeff,
+    target_coeff,
+    noise,
+    r,
+    b,
+    const,
+    sample_generator,
+    sample_gen_params,
+    sigmas_exponent,
+    optimize_lambda=False,
+    lambda_candidates=None
+):
+    """
+    Computes the squared operator error using an analytic σ(f) ~ 1/f²,
+    properly accounting for both positive and negative frequencies.
+    """
+    op_error_sampmean = np.zeros(num_samples)
+    op_error_sampstd = np.zeros(num_samples)
+
+    # Determine the number of frequency components.
+    N = len(kernel_coeff)
+    # Compute the frequency bins for FFT (this includes negative frequencies).
+    freqs = np.fft.fftfreq(N, d=(time_span / N))
+    # Define analytic sigma: handle f=0 separately.
+    sigma_analytical = np.where(np.abs(freqs) < 1e-12, 1.0, 1.0 / (np.abs(freqs) ** sigmas_exponent))
+    
+    for n in range(1, num_samples + 1):
+        errors = np.zeros(num_experiments)
+        for j in range(num_experiments):
+            # Generate the sample matrix X.
+            X = sample_generator(n, time_array, **sample_gen_params)
+            
+            if optimize_lambda:
+                sigma_max = np.max(sigma_analytical)
+                if sigma_max < 1e-12:
+                    sigma_max = 1e-12
+                k_min = 3
+                k_max = 1
+                num_candidates = 30
+                lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
+
+                best_lambda = None
+                best_error = np.inf
+                for candidate in lambda_candidates:
+                    pred_fourier, _ = _compute_prediction_given_lambda(
+                        n, time_array, time_span, kernel_coeff, target_coeff, noise, candidate, X
+                    )
+                    diff = pred_fourier - target_coeff
+                    op_error = np.sum(sigma_analytical * np.abs(diff) ** 2 / kernel_coeff)
+                    if op_error < best_error:
+                        best_error = op_error
+                        best_lambda = candidate
+                        best_pred_fourier = pred_fourier
+                prediction_fourier = best_pred_fourier
+            else:
+                lamb = compute_lambda(const, n, r, b)
+                prediction_fourier, _ = _compute_prediction_given_lambda(
+                    n, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X
+                )
+
+            diff = prediction_fourier - target_coeff
+            op_error = np.sum(sigma_analytical * np.abs(diff) ** 2 / kernel_coeff)
+            errors[j] = op_error
+
+        op_error_sampmean[n - 1] = np.mean(errors)
+        op_error_sampstd[n - 1] = np.std(errors)
+
+    return op_error_sampmean, op_error_sampstd
+
 
 
