@@ -1,7 +1,7 @@
 import numpy as np
 from sampling import power_law_samples_symmetric_including_dc
 from fourier import compute_fourier_coeff, get_fourier_coeffs
-from signals import generate_frequency_localized_samples
+from generate_input_signals import generate_frequency_localized_samples
 
 def test_frequency_eigenvalues():
     """

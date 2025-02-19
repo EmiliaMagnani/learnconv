@@ -1,6 +1,6 @@
 import numpy as np
 from sampling import power_law_samples_symmetric_including_dc
-from signals import generate_frequency_localized_samples
+from generate_input_signals import generate_frequency_localized_samples
 from fourier import compute_fourier_coeff
 
 def test_fourier_squared_magnitude_equals_probability():

@@ -1,6 +1,6 @@
 import numpy as np
 from fourier import compute_fourier_coeff, get_fourier_coeffs
-from signals  import generate_frequency_localized_samples, generate_time_localized_samples
+from generate_input_signals  import generate_frequency_localized_samples, generate_time_localized_samples
 from sampling import power_law_samples_symmetric_including_dc
 
 # Parameters common to both tests

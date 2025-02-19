@@ -1,7 +1,7 @@
 import numpy as np
-from signals import  generate_frequency_localized_samples, generate_time_localized_samples, construct_sine_series_signal
-from sampling import  power_law_samples_symmetric_including_dc
-from fourier import compute_fourier_coeff, compute_inverse_fourier_coeff, get_fourier_coeffs, get_fourier_coeffs_balanced
+from generate_input_signals import  generate_frequency_localized_samples, generate_time_localized_samples
+from sampling import power_law_samples_symmetric_including_dc
+from fourier import  get_fourier_coeffs, get_fourier_coeffs_balanced
 from fourier_inference import  compute_prediction, compute_error, compute_operator_error
 
 
@@ -25,23 +25,6 @@ noise = .45 # noise level in the data
 
 # Compute frequency bins 
 freqs = np.fft.fftfreq(grid_size, time_span / grid_size)
-
-balancing_vector = np.ones(grid_size)
-balancing_vector[freqs != 0] = np.abs(freqs[freqs != 0]) ** 1
-balancing_vector[1] =.3
-balancing_vector[-1] =.3
-balancing_vector[2] = .5
-balancing_vector[-2] = .5
-balancing_vector[3] = 3
-balancing_vector[-3] = 3
-balancing_vector[4] = 4
-balancing_vector[-4] = 4
-balancing_vector[5] = 4
-balancing_vector[-5] = 4
-balancing_vector[6] = 2
-balancing_vector[-6] = 2
-target_coeff = get_fourier_coeffs_balanced(decay=3.51, time_span=time_span, n_sample_points=grid_size, c0=.5, scale=.7, balancing_vector=balancing_vector)
-
 
 balancing_vector = np.ones(grid_size)
 balancing_vector[freqs != 0] = np.abs(freqs[freqs != 0]) ** 1
@@ -100,7 +83,7 @@ const_lam = 1e-4
 loc_parameter = 0.002
 r_time_loc = 1 / 2
 b_time_loc = 2
-X_time_loc = generate_time_localized_samples(num_samples, time_array, loc_parameter,rng)
+X_time_loc = generate_time_localized_samples(num_samples, time_array,loc_parameter, .5, .16, rng)
 
 # # error computation for frequency localised signals
 sample_gen_params_freq_loc = {
@@ -130,6 +113,8 @@ error_squared_sampmean_freq_loc, error_squared_sampstd_freq_loc = compute_error(
 ## error computation for time localised signals
 sample_gen_params_time_loc = {
     "delta": loc_parameter,
+    "shift_center": .5,
+    "std": .16,
     "rng": rng,
 }
 error_squared_sampmean_time_loc, error_squared_sampstd_time_loc = compute_error(
@@ -154,12 +139,12 @@ freq_loc_params = f"n{num_samples}_grid_size{grid_size}_seed{seed}_noise{noise}_
 time_loc_params = f"n{num_samples}_gird_size{grid_size}_seed{seed}_noise{noise}_locparam{loc_parameter}"
 
 # Save frequency-localized results with freq-loc specific parameters
-np.save(f'learnconv_results/freq_loc_error_squared_sampmean_{freq_loc_params}.npy', error_squared_sampmean_freq_loc)
-np.save(f'learnconv_results/freq_loc_error_squared_sampstd_{freq_loc_params}.npy', error_squared_sampstd_freq_loc)
+# np.save(f'learnconv_results/freq_loc_error_squared_sampmean_{freq_loc_params}.npy', error_squared_sampmean_freq_loc)
+# np.save(f'learnconv_results/freq_loc_error_squared_sampstd_{freq_loc_params}.npy', error_squared_sampstd_freq_loc)
 
 # Save time-localized results with time-loc specific parameters
-np.save(f'learnconv_results/time_loc_error_squared_sampmean_{time_loc_params}.npy', error_squared_sampmean_time_loc)
-np.save(f'learnconv_results/time_loc_error_squared_sampstd_{time_loc_params}.npy', error_squared_sampstd_time_loc)
+# np.save(f'learnconv_results/time_loc_error_squared_sampmean_{time_loc_params}.npy', error_squared_sampmean_time_loc)
+# np.save(f'learnconv_results/time_loc_error_squared_sampstd_{time_loc_params}.npy', error_squared_sampstd_time_loc)
 
 #Finallly let's compute and save the predictions in time domain for n=100 samples
 
@@ -188,8 +173,8 @@ _, prediction_time_loc = compute_prediction(
     optimize_lambda=True
 )
 
-np.save(f'learnconv_results/freq_loc_prediction_{freq_loc_params}.npy', prediction_freq_loc)
-np.save(f'learnconv_results/time_loc_prediction_{time_loc_params}.npy', prediction_time_loc)
+# np.save(f'learnconv_results/freq_loc_prediction_{freq_loc_params}.npy', prediction_freq_loc)
+# np.save(f'learnconv_results/time_loc_prediction_{time_loc_params}.npy', prediction_time_loc)
 
 
 
@@ -227,7 +212,7 @@ op_error_squared_sampmean_time_loc, op_error_squared_sampstd_time_loc = compute_
     sample_gen_params_time_loc,
     optimize_lambda=True  
 )
-np.save(f'learnconv_results/freq_loc_op_error_squared_sampmean_{freq_loc_params}.npy', op_error_squared_sampmean_freq_loc)
-np.save(f'learnconv_results/freq_loc_op_error_squared_sampstd_{freq_loc_params}.npy', op_error_squared_sampstd_freq_loc)
-np.save(f'learnconv_results/time_loc_op_error_squared_sampmean_{time_loc_params}.npy', op_error_squared_sampmean_time_loc)
-np.save(f'learnconv_results/time_loc_op_error_squared_sampstd_{time_loc_params}.npy', op_error_squared_sampstd_time_loc)
+# np.save(f'learnconv_results/freq_loc_op_error_squared_sampmean_{freq_loc_params}.npy', op_error_squared_sampmean_freq_loc)
+# np.save(f'learnconv_results/freq_loc_op_error_squared_sampstd_{freq_loc_params}.npy', op_error_squared_sampstd_freq_loc)
+# np.save(f'learnconv_results/time_loc_op_error_squared_sampmean_{time_loc_params}.npy', op_error_squared_sampmean_time_loc)
+# np.save(f'learnconv_results/time_loc_op_error_squared_sampstd_{time_loc_params}.npy', op_error_squared_sampstd_time_loc)

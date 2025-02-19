@@ -1,5 +1,5 @@
 from sampling import power_law_samples, power_law_samples_symmetric,power_law_samples_symmetric_including_dc
-from signals import generate_time_localized_samples,generate_frequency_localized_samples
+from generate_input_signals import generate_time_localized_samples,generate_frequency_localized_samples
 import numpy as np
 from scipy.stats import chisquare
 

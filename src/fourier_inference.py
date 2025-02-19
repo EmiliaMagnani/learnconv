@@ -175,9 +175,9 @@ def compute_prediction(
         sigma_max = np.max(sigma_values)
         
         # Define the candidate search in logspace:
-        k_min = 3  # exponent lower bound (e.g., sigma_max*10^-3)
+        k_min = 5  # exponent lower bound (e.g., sigma_max*10^-3)
         k_max = 1  # exponent upper bound (e.g., sigma_max*10^-1)
-        num_candidates = 30  # Adjust as needed
+        num_candidates = 40  # Adjust as needed
         lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
         
         print(f"Computed sigma_max = {sigma_max:.3e}")
