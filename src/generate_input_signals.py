@@ -4,7 +4,6 @@ import numpy as np
 # Signal samples for input data generation
 
 
-
 def generate_frequency_localized_samples(n_samples, time_array, max_value, exponent, power_law_func, rng):
     """
     Generates frequency-localized samples using random frequencies drawn from a power-law distribution.
@@ -100,6 +99,61 @@ def generate_time_localized_samples(n_samples, time_array, delta, shift_center, 
     
     # Scale the mask by 1/(2*delta) to obtain the desired amplitude.
     return mask.astype(float) / (2 * delta)
+
+
+
+def generate_time_localized_samples_on_torus(
+    n_samples: int,
+    time_array: np.ndarray,
+    delta: float,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    """
+    Generates a set of time-localized indicator functions on the 1D torus.
+
+    For each of the n_samples, we draw a uniform random shift τ in [0,1],
+    then define an indicator 'bump' around τ with half-width delta. The
+    distance is computed on the circle, so wrap-around is handled automatically.
+
+    Concretely, for each point t in time_array:
+
+        1. Compute raw distance |t - τ|.
+        2. Wrap using min(|t - τ|, 1 - |t - τ|).
+        3. If the wrapped distance ≤ delta, set X(t)=1/(2*delta); else 0.
+
+    Parameters
+    ----------
+    n_samples : int
+        Number of samples to generate (number of 'bump' signals).
+    time_array : np.ndarray
+        A 1D array of time points. Usually assumed to lie within [0,1).
+    delta : float
+        The half-width of the localized window, in [0,1/2].
+    rng : np.random.Generator
+        A NumPy random generator instance for reproducible randomness.
+
+    Returns
+    -------
+    X : np.ndarray
+        A 2D array of shape (len(time_array), n_samples), where each column
+        is one of these torus‐localized indicator bumps scaled by 1/(2*delta).
+    """
+    # 1) Draw random shifts τ uniformly in [0,1).
+    random_shifts = rng.random(n_samples)
+
+    # 2) For each time point t_i and each shift τ_j, compute |t_i - τ_j|.
+    diffs = np.abs(time_array[:, None] - random_shifts[None, :])
+
+    # 3) Wrap around the circle by taking min(diffs, 1 - diffs).
+    circ_diffs = np.minimum(diffs, 1.0 - diffs)
+
+    # 4) Check if circ_diffs ≤ delta => inside the 'bump'.
+    mask = circ_diffs <= delta
+
+    # 5) Scale by 1 / (2*delta) to form the final indicator bumps.
+    X = mask.astype(float) / (2.0 * delta)
+
+    return X
 
 
 
