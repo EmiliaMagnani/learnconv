@@ -1,7 +1,9 @@
 import numpy as np
 from sampling import power_law_samples_symmetric_including_dc
-from generate_input_signals import generate_frequency_localized_samples
+from generate_input_signals import generate_frequency_localized_samples, generate_time_localized_samples_on_torus, generate_time_localized_samples
 from fourier import compute_fourier_coeff
+
+
 
 def test_fourier_squared_magnitude_equals_probability():
     """
@@ -68,3 +70,58 @@ def test_fourier_squared_magnitude_equals_probability():
     assert np.allclose(avg_sq_nonzero, p_theory, rtol=tol), (
         f"Empirical averaged squared magnitudes {avg_sq_nonzero} differ from theoretical probabilities {p_theory}"
     )
+
+
+
+
+
+# Test shapes and values of generated signals
+
+def test_generate_time_localized_samples():
+    n_samples = 5
+    time_array = np.linspace(0, 1, 100)
+    delta = 0.1
+    X = generate_time_localized_samples(n_samples, time_array, delta)
+
+    # Expected shape: (len(time_array), n_samples)
+    assert X.shape == (100, n_samples)
+
+    # Values should be either 0 or 1/(2*delta).
+    unique_vals = np.unique(X)
+    expected_val = 1 / (2 * delta)
+    for v in unique_vals:
+        assert np.isclose(v, 0) or np.isclose(v, expected_val)
+
+def test_generate_time_localized_samples_on_torus():
+    n_samples = 5
+    time_array = np.linspace(0, 1, 100)
+    delta = 0.1
+    X = generate_time_localized_samples_on_torus(n_samples, time_array, delta)
+
+    # Expected shape: (len(time_array), n_samples)
+    assert X.shape == (100, n_samples)
+
+    # Values should be either 0 or 1/(2*delta).
+    unique_vals = np.unique(X)
+    expected_val = 1 / (2 * delta)
+    for v in unique_vals:
+        assert np.isclose(v, 0) or np.isclose(v, expected_val)
+
+
+def test_generate_frequency_localized_samples():
+    n_samples = 5
+    time_array = np.linspace(0, 1, 128)
+    max_value = 10
+    exponent = 2.0
+    rng = np.random.default_rng(42)
+    # Use the symmetric version here.
+    from src.sampling import power_law_samples_symmetric_including_dc
+
+    X = generate_frequency_localized_samples(
+        n_samples, time_array, max_value, exponent, power_law_samples_symmetric_including_dc, rng
+    )
+    # Expected shape: (len(time_array), n_samples)
+    assert X.shape == (128, n_samples)
+    # Check that the samples are complex.
+    assert np.iscomplexobj(X)
+

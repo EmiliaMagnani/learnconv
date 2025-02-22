@@ -39,7 +39,7 @@ def compute_output_data_matrix(
 
 
 def _compute_prediction_given_lambda(
-    num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X
+    num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X_fourier
 ):
     """
     Runs inference (in Fourier domain) for input signals X and returns the Fourier coefficients of the prediction, and the prediction in the time domain,
@@ -61,8 +61,8 @@ def _compute_prediction_given_lambda(
         Standard deviation of the noise added to the output.
     lamb : float
         The regularization parameter.
-    X : np.ndarray
-        The sample matrix (time-domain) with shape (len(time_array), num_samples).
+    X_fourier : np.ndarray
+        Fourier coefficients of the input matrix with size (len(time_array), num_samples).
 
     Returns:
     -------
@@ -73,8 +73,7 @@ def _compute_prediction_given_lambda(
         prediction_fourier.
     """
 
-    # Compute Fourier coefficients of X and Y
-    X_fourier = compute_fourier_coeff(X, time_span)
+    # Compute the output data matrix Y
     Y = compute_output_data_matrix(
         X_fourier, target_coeff, noise, time_array.size, time_span
     )
@@ -105,7 +104,7 @@ def compute_prediction(
     kernel_coeff: np.ndarray,
     target_coeff: np.ndarray,
     noise: float,
-    X: np.ndarray,
+    X_fourier: np.ndarray,
     lamb: Optional[float] = None,
     optimize_lambda: bool = False,
     lambda_candidates: Optional[np.ndarray] = None
@@ -139,8 +138,8 @@ def compute_prediction(
         Fourier coefficients of the target function.
     noise : float
         Standard deviation of the noise added to the output.
-    X : np.ndarray
-        The sample matrix (time-domain) with shape (len(time_array), num_samples).
+    X_fourier : np.ndarray
+        Fourier coefficients of the input matrix. Size is (len(time_array), num_samples).
     lamb : float, optional
         The regularization parameter (required if optimize_lambda is False).
     optimize_lambda : bool, default False
@@ -168,14 +167,12 @@ def compute_prediction(
                 "When optimize_lambda is True, 'lamb' must not be provided. "
                 "Lambda will be optimized via grid search."
             )
-        # Compute Fourier coefficients for X.
-        X_fourier = compute_fourier_coeff(X, time_span)
         # Compute the per-frequency sigma: average squared magnitude times kernel_coeff.
         sigma_values = kernel_coeff * np.mean(np.abs(X_fourier) ** 2, axis=1)
         sigma_max = np.max(sigma_values)
         
         # Define the candidate search in logspace:
-        k_min = 3  # exponent lower bound (e.g., sigma_max*10^-3)
+        k_min = 3  # exponent lower bound (e.g., sigma_max*10^-3)  #for heat equation put lower, 4 or 5
         k_max = 1  # exponent upper bound (e.g., sigma_max*10^-1)
         num_candidates = 35  # Adjust as needed
         lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
@@ -186,7 +183,7 @@ def compute_prediction(
         # Initialize with the candidate corresponding to the smallest lambda.
         best_lambda = lambda_candidates[0]
         best_pred_fourier, best_pred_time = _compute_prediction_given_lambda(
-            num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, best_lambda, X
+            num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, best_lambda, X_fourier
         )
         best_error = np.sum(np.abs(best_pred_fourier - target_coeff) ** 2 / kernel_coeff)
         
@@ -195,7 +192,7 @@ def compute_prediction(
         # Grid search over candidate lambda values.
         for candidate in lambda_candidates:
             pred_fourier, pred_time = _compute_prediction_given_lambda(
-                num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, candidate, X
+                num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, candidate, X_fourier
             )
             error = np.sum(np.abs(pred_fourier - target_coeff) ** 2 / kernel_coeff)
             # print(f"Candidate lambda = {candidate:.3e} has error = {error:.3e}")
@@ -212,7 +209,7 @@ def compute_prediction(
         if lamb is None:
             raise ValueError("Parameter 'lamb' must be provided when optimize_lambda is False.")
         return _compute_prediction_given_lambda(
-            num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X
+            num_samples, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X_fourier
         )
 
 
@@ -291,19 +288,21 @@ def compute_error(
         for j in range(num_experiments):
             # Generate the sample matrix X for the current experiment.
             X = sample_generator(n, time_array, **sample_gen_params)
+            # Compute Fourier coefficients of X.
+            X_fourier = compute_fourier_coeff(X, time_span)
 
             if optimize_lambda:
                 # Grid search inside compute_prediction.
                 # If lambda_candidates is None, compute_prediction will generate them.
                 prediction_fourier, _ = compute_prediction(
-                    n, time_array, time_span, kernel_coeff, target_coeff, noise, X,
+                    n, time_array, time_span, kernel_coeff, target_coeff, noise, X_fourier,
                     optimize_lambda=True, lambda_candidates=lambda_candidates
                 )
             else:
                 # Compute lambda using the provided parameters.
                 lamb = compute_lambda(const, n, r, b)
                 prediction_fourier, _ = compute_prediction(
-                    n, time_array, time_span, kernel_coeff, target_coeff, noise, X, lamb=lamb
+                    n, time_array, time_span, kernel_coeff, target_coeff, noise, X_fourier, lamb=lamb
                 )
 
             # Compute the RKHS error.
@@ -394,7 +393,8 @@ def compute_operator_error(
             # Compute Fourier coefficients of X.
             X_fourier = compute_fourier_coeff(X, time_span)
             # Empirical estimate of sigma_l:
-            sigma_est = kernel_coeff * np.sum(np.abs(X_fourier) ** 2, axis=1) / n  
+            avg_power = np.sum(np.abs(X_fourier) ** 2, axis=1) / n    #shape (len(time_array),)
+            sigma_est = kernel_coeff * avg_power
 
             if optimize_lambda:
                 # If no lambda_candidates are provided, define them based on sigma_est.
@@ -411,10 +411,10 @@ def compute_operator_error(
                 # Manually perform grid search using the operator error metric.
                 for candidate in lambda_candidates:
                     pred_fourier, _ = _compute_prediction_given_lambda(
-                        n, time_array, time_span, kernel_coeff, target_coeff, noise, candidate, X
+                        n, time_array, time_span, kernel_coeff, target_coeff, noise, candidate, X_fourier
                     )
                     diff = pred_fourier - target_coeff
-                    op_error = np.sum(sigma_est * np.abs(diff) ** 2 / kernel_coeff)
+                    op_error = np.sum(avg_power * np.abs(diff) ** 2)
                     if op_error < best_error:
                         best_error = op_error
                         best_lambda = candidate
@@ -424,12 +424,12 @@ def compute_operator_error(
                 # Use fixed lambda computed from compute_lambda.
                 lamb = compute_lambda(const, n, r, b)
                 prediction_fourier, _ = _compute_prediction_given_lambda(
-                    n, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X
+                    n, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X_fourier
                 )
 
             diff = prediction_fourier - target_coeff
             # Compute operator error: sum_{l} [sigma_est[l] * |diff[l]|^2 / kernel_coeff[l]]
-            op_error = np.sum(sigma_est * np.abs(diff) ** 2 / kernel_coeff)
+            op_error = np.sum(avg_power * (np.abs(diff) ** 2))
             errors[j] = op_error
 
         op_error_sampmean[n - 1] = np.mean(errors)
@@ -437,79 +437,7 @@ def compute_operator_error(
 
     return op_error_sampmean, op_error_sampstd
 
-def compute_operator_error_sigmas_analytic(
-    num_samples,
-    num_experiments,
-    time_array,
-    time_span,
-    kernel_coeff,
-    target_coeff,
-    noise,
-    r,
-    b,
-    const,
-    sample_generator,
-    sample_gen_params,
-    sigmas_exponent,
-    optimize_lambda=False,
-    lambda_candidates=None
-):
-    """
-    Computes the squared operator error using an analytic σ(f) ~ 1/f²,
-    properly accounting for both positive and negative frequencies.
-    """
-    op_error_sampmean = np.zeros(num_samples)
-    op_error_sampstd = np.zeros(num_samples)
 
-    # Determine the number of frequency components.
-    N = len(kernel_coeff)
-    # Compute the frequency bins for FFT (this includes negative frequencies).
-    freqs = np.fft.fftfreq(N, d=(time_span / N))
-    # Define analytic sigma: handle f=0 separately.
-    sigma_analytical = np.where(np.abs(freqs) < 1e-12, 1.0, 1.0 / (np.abs(freqs) ** sigmas_exponent))
-    
-    for n in range(1, num_samples + 1):
-        errors = np.zeros(num_experiments)
-        for j in range(num_experiments):
-            # Generate the sample matrix X.
-            X = sample_generator(n, time_array, **sample_gen_params)
-            
-            if optimize_lambda:
-                sigma_max = np.max(sigma_analytical)
-                if sigma_max < 1e-12:
-                    sigma_max = 1e-12
-                k_min = 3
-                k_max = 1
-                num_candidates = 30
-                lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
-
-                best_lambda = None
-                best_error = np.inf
-                for candidate in lambda_candidates:
-                    pred_fourier, _ = _compute_prediction_given_lambda(
-                        n, time_array, time_span, kernel_coeff, target_coeff, noise, candidate, X
-                    )
-                    diff = pred_fourier - target_coeff
-                    op_error = np.sum(sigma_analytical * np.abs(diff) ** 2 / kernel_coeff)
-                    if op_error < best_error:
-                        best_error = op_error
-                        best_lambda = candidate
-                        best_pred_fourier = pred_fourier
-                prediction_fourier = best_pred_fourier
-            else:
-                lamb = compute_lambda(const, n, r, b)
-                prediction_fourier, _ = _compute_prediction_given_lambda(
-                    n, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X
-                )
-
-            diff = prediction_fourier - target_coeff
-            op_error = np.sum(sigma_analytical * np.abs(diff) ** 2 / kernel_coeff)
-            errors[j] = op_error
-
-        op_error_sampmean[n - 1] = np.mean(errors)
-        op_error_sampstd[n - 1] = np.std(errors)
-
-    return op_error_sampmean, op_error_sampstd
 
 
 
