@@ -403,7 +403,7 @@ def compute_operator_error(
                     sigma_max = 1e-12
                 k_min = 3  # e.g., sigma_max*10^-3
                 k_max = 1  # e.g., sigma_max*10^-1
-                num_candidates = 30
+                num_candidates = 35
                 lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
 
                 best_lambda = None
