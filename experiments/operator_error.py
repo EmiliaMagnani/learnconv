@@ -5,7 +5,6 @@ from generate_input_signals import (
 from fourier import get_fourier_coeffs, get_fourier_coeffs_balanced
 from fourier_inference import (
     compute_operator_error,
-    compute_operator_error,
 )
 
 
@@ -16,7 +15,7 @@ rng = np.random.default_rng(seed)
 num_samples = 1000
 num_experiments = 10  # number of experiments for each sample to compute error bars
 
-grid_size = 2**10  # grid points
+grid_size = 2**12  # grid points
 
 t_left = 0
 t_right = 1  # time interval
@@ -24,7 +23,7 @@ t_right = 1  # time interval
 time_span = t_right - t_left
 
 time_array = np.linspace(t_left, t_right, grid_size, endpoint=False)
-noise = 0.45  # noise level in the data
+noise = 0.3  # noise level in the data
 
 
 # Compute frequency bins
@@ -111,5 +110,5 @@ op_error_squared_sampmean_time_loc, op_error_squared_sampstd_time_loc = (
         optimize_lambda=True,
     )
 )
-# np.save(f'learnconv_results/time_loc_op_error_squared_sampmean_{time_loc_params}.npy', op_error_squared_sampmean_time_loc)
-# np.save(f'learnconv_results/time_loc_op_error_squared_sampstd_{time_loc_params}.npy', op_error_squared_sampstd_time_loc)
+np.save(f'learnconv_results/time_loc_op_error_squared_sampmean_{time_loc_params}.npy', op_error_squared_sampmean_time_loc)
+np.save(f'learnconv_results/time_loc_op_error_squared_sampstd_{time_loc_params}.npy', op_error_squared_sampstd_time_loc)
