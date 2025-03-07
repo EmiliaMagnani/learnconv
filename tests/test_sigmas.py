@@ -7,9 +7,9 @@ import pytest
 
 
 @pytest.mark.parametrize("delta, grid_size", [
-    (0.00001, 2**15), (0.001, 2**9) # Example: very small delta, grid_size=1024
+    (0.001, 2**12),  (0.001, 2**11) # Example: very small delta, grid_size=1024
 ])
-def test_small_delta_bumps_fourier_is_close_to_one(delta: float, grid_size: Literal[32768]):
+def test_small_delta_bumps_fourier_is_close_to_one(delta: float, grid_size:int):
     """
     For small delta, the low-frequency Fourier coefficients of the
     time-localized bumps should have magnitude ~ 1. In theory,
@@ -26,7 +26,7 @@ def test_small_delta_bumps_fourier_is_close_to_one(delta: float, grid_size: Lite
     time_array = np.linspace(t_left, t_right, grid_size, endpoint=False)
 
     # Generate signals
-    num_samples = 100  # or however many you like
+    num_samples = 150  # or however many you like
     X_time_loc = generate_time_localized_samples_on_torus(
         n_samples=num_samples,
         time_array=time_array,
@@ -46,19 +46,20 @@ def test_small_delta_bumps_fourier_is_close_to_one(delta: float, grid_size: Lite
     # We'll pick a small band of frequencies around 0, for which
     # we expect the magnitude to be close to 1. For instance, take
     # ell_max = 5, 10, or something like 1/(10*delta) if that is smaller
-    ell_max = grid_size//2 # or pick something smaller or bigger
+    ell_max = min(grid_size // 2, int(.5 / (2 * np.pi * delta))) # in fact  ∣ℓ∣≪1/δ
+    print('ellmax=', ell_max)
     freq_mask = (freqs >= -ell_max) & (freqs <= ell_max)
 
     # Extract those Fourier coefficients
     F_sub = X_time_loc_fourier[freq_mask, :]  # shape (#freqs_in_range, num_samples)
-    F_mags = np.abs(F_sub)
+    F_mags = np.abs(F_sub)**2
 
     # One way: check the average magnitude across samples
     avg_mags_per_freq = F_mags.mean(axis=1)
 
     # We want to assert they are "close to 1" for these frequencies.
     # The tolerance can be adjusted depending on how precise we expect them to be.
-    close_to_one = np.isclose(avg_mags_per_freq, 1.0, atol=0.05, rtol=0.1)
+    close_to_one = np.isclose(avg_mags_per_freq, 1.0, atol=0.05, rtol=0.05)
     # For instance, we allow ±0.05 absolute difference or 10% relative difference.
 
     # If you want to ensure *all* these frequencies are close to 1, do:

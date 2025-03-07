@@ -316,100 +316,6 @@ def compute_error(
     return error_sampmean, error_sampstd
 
 
-# def compute_operator_error(
-#     num_samples,
-#     num_experiments,
-#     time_array,
-#     time_span,
-#     kernel_coeff,
-#     target_coeff,
-#     noise,
-#     r,
-#     b,
-#     const,
-#     sample_generator,
-#     sample_gen_params,
-#     optimize_lambda=False,
-#     lambda_candidates=None
-# ):
-#     op_error_sampmean = np.zeros(num_samples)
-#     op_error_sampstd = np.zeros(num_samples)
-    
-#     # Determine whether to restrict the frequencies:
-#     # Here we check if the sample generator is the time-localized one by
-#     # looking for a 'delta' key in sample_gen_params.
-#     if "delta" in sample_gen_params:
-#         delta = sample_gen_params["delta"]
-#         grid_size = len(time_array)
-#         freqs = np.fft.fftfreq(grid_size, d=(time_span / grid_size))
-#         ell_max = min(grid_size // 2, int(1 / (10 * delta)), int(0.1 / (2 * np.pi * delta)))
-#         freq_mask = np.abs(freqs) <= ell_max
-#         # Restrict kernel_coeff to the same low-frequency band.
-#         kernel_coeff_masked = kernel_coeff[freq_mask]
-#     else:
-#         freq_mask = None
-#         kernel_coeff_masked = kernel_coeff
-
-#     for n in range(1, num_samples + 1):
-#         errors = np.zeros(num_experiments)
-#         for j in range(num_experiments):
-#             # Generate the sample matrix X.
-#             X = sample_generator(n, time_array, **sample_gen_params)
-            
-#             # Compute Fourier coefficients of X.
-#             X_fourier = compute_fourier_coeff(X, time_span)
-#             # Compute average power per frequency.
-#             avg_power = np.mean(np.abs(X_fourier) ** 2, axis=1)
-#             # If we have a frequency mask (for time-localized inputs), restrict avg_power.
-#             if freq_mask is not None:
-#                 avg_power = avg_power[freq_mask]
-
-            
-#             if optimize_lambda:
-#                 # (Grid search to select lambda.)
-#                 sigma_max = np.max(avg_power * kernel_coeff_masked)
-#                 sigma_max = sigma_max if sigma_max > 1e-12 else 1e-12
-#                 k_min = 3  
-#                 k_max = 1  
-#                 num_candidates = 35
-#                 lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
-
-#                 best_lambda = None
-#                 best_error = np.inf
-#                 for candidate in lambda_candidates:
-#                     pred_fourier, _ = _compute_prediction_given_lambda(
-#                         n, time_array, time_span, kernel_coeff, target_coeff, noise, candidate, X_fourier
-#                     )
-#                     # Compute difference over all frequencies.
-#                     diff = pred_fourier - target_coeff
-#                     # Restrict diff if necessary.
-#                     if freq_mask is not None:
-#                         diff = diff[freq_mask]
-#                     op_error = np.sum(avg_power * np.abs(diff) ** 2)
-#                     if op_error < best_error:
-#                         best_error = op_error
-#                         best_lambda = candidate
-#                         best_pred_fourier = pred_fourier
-#                 prediction_fourier = best_pred_fourier
-#             else:
-#                 lamb = compute_lambda(const, n, r, b)
-#                 prediction_fourier, _ = _compute_prediction_given_lambda(
-#                     n, time_array, time_span, kernel_coeff, target_coeff, noise, lamb, X_fourier
-#                 )
-            
-#             # Compute the difference and restrict frequencies if needed.
-#             diff = prediction_fourier - target_coeff
-#             if freq_mask is not None:
-#                 diff = diff[freq_mask]
-            
-#             op_error = np.sum(avg_power * np.abs(diff) ** 2)
-#             errors[j] = op_error
-
-#         op_error_sampmean[n - 1] = np.mean(errors)
-#         op_error_sampstd[n - 1] = np.std(errors)
-
-#     return op_error_sampmean, op_error_sampstd
-
 def compute_operator_error(
     num_samples,
     num_experiments,
@@ -435,7 +341,7 @@ def compute_operator_error(
         grid_size = len(time_array)
         freqs = np.fft.fftfreq(grid_size, d=(time_span / grid_size))
         # Define ell_max such that only frequencies |ℓ| << 1/δ are used.
-        ell_max = min(grid_size // 2, int(1 / (10 * delta)), int(0.1 / (2 * np.pi * delta)))
+        ell_max = min(grid_size // 2, int(.5 / (10 * delta)), int(0.1 / (2 * np.pi * delta)))
         freq_mask = np.abs(freqs) <= ell_max
         # Restrict kernel_coeff to the same frequency range.
         kernel_coeff_masked = kernel_coeff[freq_mask]
@@ -460,8 +366,8 @@ def compute_operator_error(
                 # Use the masked kernel coefficients here.
                 sigma_max = np.max(avg_power * kernel_coeff_masked)
                 sigma_max = sigma_max if sigma_max > 1e-12 else 1e-12
-                k_min = 3  
-                k_max = 1  
+                k_min = 5
+                k_max = 0  
                 num_candidates = 35
                 lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
 
@@ -479,7 +385,9 @@ def compute_operator_error(
                         best_error = op_error
                         best_lambda = candidate
                         best_pred_fourier = pred_fourier
+                        print(f"Best lambda: {best_lambda:.3e} with error: {best_error:.3e}")
                 prediction_fourier = best_pred_fourier
+                
             else:
                 lamb = compute_lambda(const, n, r, b)
                 prediction_fourier, _ = _compute_prediction_given_lambda(
@@ -489,7 +397,7 @@ def compute_operator_error(
             diff = prediction_fourier - target_coeff
             if freq_mask is not None:
                 diff = diff[freq_mask]
-            op_error = np.sum(avg_power * np.abs(diff) ** 2)
+            op_error = np.sum(avg_power * (np.abs(diff) ** 2))
             errors[j] = op_error
 
         op_error_sampmean[n - 1] = np.mean(errors)
