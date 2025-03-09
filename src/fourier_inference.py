@@ -366,8 +366,8 @@ def compute_operator_error(
                 # Use the masked kernel coefficients here.
                 sigma_max = np.max(avg_power * kernel_coeff_masked)
                 sigma_max = sigma_max if sigma_max > 1e-12 else 1e-12
-                k_min = 5
-                k_max = 0  
+                k_min = 4
+                k_max = 1  
                 num_candidates = 35
                 lambda_candidates = sigma_max * np.logspace(-k_min, -k_max, num=num_candidates)
 

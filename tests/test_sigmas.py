@@ -7,7 +7,7 @@ import pytest
 
 
 @pytest.mark.parametrize("delta, grid_size", [
-    (0.001, 2**12),  (0.001, 2**11) # Example: very small delta, grid_size=1024
+    (0.001, 2**12),  (0.002, 2**9) # Example: very small delta, grid_size=1024
 ])
 def test_small_delta_bumps_fourier_is_close_to_one(delta: float, grid_size:int):
     """

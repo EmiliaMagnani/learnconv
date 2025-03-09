@@ -16,9 +16,9 @@ rng = np.random.default_rng(seed)
 
 # Number of input functions
 num_samples = 1000
-num_experiments = 10  # number of experiments for each sample to compute error bars
+num_experiments = 9  # number of experiments for each sample to compute error bars
 
-grid_size = 2**12  # grid points
+grid_size = 2**9  # grid points
 
 t_left = 0
 t_right = 1  # time interval
@@ -82,7 +82,7 @@ kernel_coeff = get_fourier_coeffs(
 ##################################### TIME-LOC INPUTS
 
 # time-loc input signals
-loc_parameter = 0.001
+loc_parameter = 0.002
 r_time_loc = 1 / 2
 b_time_loc = 2
 const_lam = 1e-4
