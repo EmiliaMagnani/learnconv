@@ -103,11 +103,10 @@ def power_law_samples_symmetric(n_samples, max_value, exponent, rng):
     
     The probability decays as:
     
-    $$
-    p(x) \\propto \\frac{1}{|x|^{\\text{exponent}}}
-    $$
+    p(x) proportional to 1/{|x|^{exponent}}
     
-    for $x \\in \\{-\\text{max_value}, \\dots, -1, 1, \\dots, \\text{max_value}\\}$.
+    
+    for $x \in \{-{max_value}, ... -1, 1, ..., \{max_value}\}$.
     
     Parameters:
     ----------
