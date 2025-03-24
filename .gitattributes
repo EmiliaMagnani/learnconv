@@ -1,3 +1,3 @@
 *.ipynb linguist-generated=true
-!notebooks/Heat_equation_pde_application.ipynb linguist-generated=false
+notebooks/Heat_equation_pde_application.ipynb linguist-generated=false
 
