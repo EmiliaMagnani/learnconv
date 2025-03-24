@@ -1,0 +1,9 @@
+# Ignore the results folder
+results/
+
+# Ignore compiled Python files
+*.pyc
+
+# Optionally, ignore cache folders
+__pycache__/
+
