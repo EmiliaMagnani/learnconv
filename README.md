@@ -1,13 +1,40 @@
-# Numerical Simulations for Learning Convolution Operators 
+# Learning Convolution Operators with Kernel Methods: Experiments
 
-This repository contains the numerical simulations accompanying our paper, which addresses the problem of learning convolution operators (on) with compact Abelian groups). The simulations illustrate our theoretical findings through a series of practical examples, helping to clarify and validate the accuracy of the estimators in various settings.
+This repository contains the experimental code associated with the paper:
 
+**Emilia Magnani, Ernesto De Vito, Philipp Hennig, Lorenzo Rosasco.  
+*Learning Convolution Operators with Kernel Methods.*  
+arXiv:2501.05279 (2025)**
 
-## Structure of the Repository
+## Repository Structure
 
-- **`src/`**: Contains the main code for setting up and running the simulations.
-- **`data/`**: Contains any data generated or used in the simulations.
-- **`notebooks/`**: Jupyter notebooks to reproduce and visualize the results of the simulations.
-- **`experiments/`**: The main scripts to run the simulations.
-- **`results/`**: Outputs from the simulations, including plots and saved model parameters.
-
+```plaintext
+├── experiments
+│   ├── compute_prediction.py        # Script to compute predictions using the convolution operators.
+│   ├── error_comparison.py          # Script for comparing different error metrics.
+│   └── operator_error.py            # Script for evaluating operator error.
+├── notebooks
+│   ├── Heat_equation_pde_application.ipynb   # Notebook demonstrating the heat equation application.
+│   ├── Sobolev_kernel.ipynb                    # Notebook for exploring the Sobolev kernel.
+│   └── tutorial.ipynb                          # Tutorial notebook for a guided walkthrough.
+├── README.md                        # This file.
+├── requirements.txt                 # List of required Python packages.
+├── results
+│   ├── convolution_matrices.pdf    # PDF output of convolution matrices.
+│   ├── ...                         # Various .npy files with experimental results.
+├── setup.py                         # Setup script for the package.
+├── src
+│   ├── convolution_matrices.py     # Module for generating convolution matrices (circulant and Toeplitz).
+│   ├── fourier_inference.py         # Module for Fourier inference.
+│   ├── fourier.py                  # Fourier related functionalities.
+│   ├── generate_input_signals.py   # Module for generating input signals.
+│   ├── kernels.py                  # Kernel definitions and operations.
+│   ├── plotting.py                 # Plotting functions.
+│   ├── regularization.py            # Regularization routines.
+│   ├── sampling.py                 # Sampling routines.
+│   └── target_signals.py           # Target signal generation.
+└── tests
+    ├── test_fourier.py             # Tests for Fourier functionalities.
+    ├── test_input_signals_decay.py # Tests for input signal decay.
+    ├── test_kernels.py             # Tests for kernel implementations.
+    └── test_sampling.py            # Tests for sampling routines.

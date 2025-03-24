@@ -140,5 +140,5 @@ freq_loc_params = (
 time_loc_params = f"n{num_samples}_grid_size{grid_size}_seed{seed}_noise{noise}_locparam{loc_parameter}"
 
 #save the results 
-# np.save(f"learnconv_results/freq_loc_pred_{freq_loc_params}.npy", prediction_freq_loc)
-# np.save(f"learnconv_results/time_loc_pred_{time_loc_params}.npy", prediction_time_loc)
+# np.save(f"results/freq_loc_pred_{freq_loc_params}.npy", prediction_freq_loc)
+# np.save(f"results/time_loc_pred_{time_loc_params}.npy", prediction_time_loc)

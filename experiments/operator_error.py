@@ -161,10 +161,10 @@ op_error_squared_sampmean_freq_loc, op_error_squared_sampstd_freq_loc = (
 )
 
 np.save(
-    f"learnconv_results/freq_loc_op_error_squared_sampmean_{freq_loc_params}.npy",
+    f"results/freq_loc_op_error_squared_sampmean_{freq_loc_params}.npy",
     op_error_squared_sampmean_freq_loc,
 )
 np.save(
-    f"learnconv_results/freq_loc_op_error_squared_sampstd_{freq_loc_params}.npy",
+    f"results/freq_loc_op_error_squared_sampstd_{freq_loc_params}.npy",
     op_error_squared_sampstd_freq_loc,
 )
